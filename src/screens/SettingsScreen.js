@@ -1,13 +1,27 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { View, Text, Button, Platform } from 'react-native'
 import { RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET } from '@env'
 import RazorpayCheckout from 'react-native-razorpay';
 import Toast from 'react-native-toast-message';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Orientation from 'react-native-orientation-locker';
+import DatePicker from 'react-native-modern-datepicker';
 
 const SettingsScreen = () => {
   let razorpayKeyId = RAZORPAY_KEY_ID;
   let razorpayKeySecret = RAZORPAY_KEY_SECRET;
+
+  const [fullScreen, setFullScreen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState('');
+
+  const FullScreen = () => {
+    if (fullScreen) {
+      Orientation.lockToPortrait();
+    } else {
+      Orientation.lockToLandscape();
+    }
+    setFullScreen(!fullScreen)
+  }
 
   const amount = 100;
   const currency = 'INR';
@@ -56,6 +70,14 @@ const SettingsScreen = () => {
       <Button
         title='Show toast'
         onPress={showToast}
+      />
+      <Button
+        title='Orientation'
+        onPress={FullScreen}
+      />
+      <Text>{selectedDate}</Text>
+      <DatePicker
+        onSelectedChange={date => setSelectedDate(date)}
       />
     </SafeAreaView>
   )

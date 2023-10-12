@@ -25,6 +25,15 @@ if linkage != nil
   use_frameworks! :linkage => linkage.to_sym
 end
 
+
+
+  # pod 'Firebase', :modular_headers => true
+ pod 'FirebaseCoreInternal', :modular_headers => true
+ pod 'GoogleUtilities', :modular_headers => true
+ pod 'FirebaseCore', :modular_headers => true
+
+
+
 target 'SwethaDairyFarm' do
   config = use_native_modules!
 

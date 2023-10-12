@@ -24,12 +24,13 @@ import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-nat
 import CustomHeader from '../components/CustomHeader';
 import DatePicker from 'react-native-date-picker'
 import CustomButton from '../components/CustomButton';
+import moment from "moment"
 
 const BannerWidth = Dimensions.get('window').width;
 const ITEM_WIDTH = Math.round(BannerWidth * 0.7)
 const { height, width } = Dimensions.get('screen')
 
-export default function ProductScreen({ navigation }) {
+export default function ProductScreen({ navigation,route  }) {
 
     const dispatch = useDispatch();
     const { data: products, status } = useSelector(state => state.products)
@@ -40,8 +41,13 @@ export default function ProductScreen({ navigation }) {
     const [modalVisible2, setModalVisible2] = useState(false);
     const [startingDayQty, setStartingDayQty] = useState(1)
     const [date, setDate] = useState(new Date())
-    const [datePlaceholder, setDatePlaceholder] = useState('')
+    const [datePlaceholder, setDatePlaceholder] = useState('Select a date')
     const [open, setOpen] = useState(false)
+
+    const [date2, setDate2] = useState(new Date())
+    const [datePlaceholder2, setDatePlaceholder2] = useState('Select a date')
+    const [open2, setOpen2] = useState(false)
+
     const [productsData, setProductsData] = useState([])
     const [categoryData, setCategoryData] = useState([])
     const [isLoading, setIsLoading] = useState(true)
@@ -287,7 +293,7 @@ export default function ProductScreen({ navigation }) {
                         <TouchableOpacity onPress={() => setOpen(true)}>
                             <View style={styles.datebox}>
                                 <Entypo name="calendar" size={25} color="#000" />
-                                <Text style={styles.dayname}>{datePlaceholder}</Text>
+                                <Text style={styles.dayname}>  {datePlaceholder}</Text>
                             </View>
                         </TouchableOpacity>
                         <DatePicker
@@ -297,7 +303,7 @@ export default function ProductScreen({ navigation }) {
                             onConfirm={(date) => {
                                 setOpen(false)
                                 setDate(date)
-                                //setDatePlaceholder(date)
+                                setDatePlaceholder(moment(date).format("DD-MM-YYYY"))
                             }}
                             onCancel={() => {
                                 setOpen(false)
@@ -434,23 +440,23 @@ export default function ProductScreen({ navigation }) {
                             </View>
                         </View>
                         <Text style={[styles.modalsectionHeader, { marginTop: 10, marginBottom: 10 }]}>Set Start Date</Text>
-                        <TouchableOpacity onPress={() => setOpen(true)}>
+                        <TouchableOpacity onPress={() => setOpen2(true)}>
                             <View style={styles.datebox}>
                                 <Entypo name="calendar" size={25} color="#000" />
-                                <Text style={styles.dayname}>{datePlaceholder}</Text>
+                                <Text style={styles.dayname}>  {datePlaceholder2}</Text>
                             </View>
                         </TouchableOpacity>
                         <DatePicker
                             modal
-                            open={open}
-                            date={date}
+                            open={open2}
+                            date={date2}
                             onConfirm={(date) => {
-                                setOpen(false)
-                                setDate(date)
-                                //setDatePlaceholder(date)
+                                setOpen2(false)
+                                setDate2(date)
+                                setDatePlaceholder2(moment(date).format("DD-MM-YYYY"))
                             }}
                             onCancel={() => {
-                                setOpen(false)
+                                setOpen2(false)
                             }}
                         />
                     </View>

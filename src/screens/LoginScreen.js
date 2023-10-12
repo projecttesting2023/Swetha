@@ -6,9 +6,32 @@ import Logo from '../assets/images/misc/logo.svg';
 import { responsiveFontSize, responsiveHeight } from 'react-native-responsive-dimensions';
 import LinearGradient from 'react-native-linear-gradient';
 import CustomButton from '../components/CustomButton';
+import * as yup from 'yup';
+import { Formik } from 'formik'
+
+const schema = yup.object().shape({
+  number: yup
+    .string()
+    .required('Phone No is required')
+    .min(10, 'Phone No must contain at least 10 characters')
+    //.test('len', 'Must be exactly 10 characters', val => val.length === 10)
+    .max(10, 'Phone No must contain at least 10 characters'),
+
+});
+
+
 
 const LoginScreen = ({ navigation }) => {
   const [number, onChangeNumber] = React.useState('');
+
+  const handleSubmit = (values) => {
+    //navigation.navigate('Otp')
+    console.log(values)
+    if (values.number) {
+      navigation.navigate('Otp', { phoneno: values.number })
+    }
+  }
+  
   return (
     <LinearGradient colors={['#E0F8FF', 'rgba(255, 255, 255, 0.05)', 'rgba(217, 217, 217, 0.00)']} style={styles.Container}>
       <View style={styles.logoView}>
@@ -18,25 +41,38 @@ const LoginScreen = ({ navigation }) => {
         //style={{transform: [{rotate: '-15deg'}]}}
         />
       </View>
-      <Text style={styles.HeaderText}>Enter Mobile Number</Text>
-      <View style={styles.buttonView}>
-        <Text style={styles.buttonText}>+91</Text>
-        <TextInput
-          style={styles.input}
-          onChangeText={onChangeNumber}
-          value={number}
-          placeholder="Enter 10 digit mobile no."
-          keyboardType="numeric"
-          //letterSpacing={2}
-        />
-      </View>
-      <Text style={styles.skipText}>We will send a 4 digit pin</Text>
-      
-      <View style={styles.buttonwrapper}>
-        <CustomButton label={"NEXT"}
-          onPress={() => { navigation.navigate('Otp') }}
-        />
-      </View>
+      <Formik
+        validationSchema={schema}
+        initialValues={{ number: '', referral: '' }}
+        onSubmit={values => handleSubmit(values)}
+      >
+        {({ handleChange, handleBlur, handleSubmit, values, errors }) => (
+          <>
+            <Text style={styles.HeaderText}>Enter Mobile Number</Text>
+            <View style={styles.buttonView}>
+              <Text style={styles.buttonText}>+91</Text>
+              <TextInput
+                style={styles.input}
+                onChangeText={handleChange('number')}
+                onBlur={handleBlur('number')}
+                placeholder="Enter 10 digit mobile no."
+                keyboardType="numeric"
+              //letterSpacing={2}
+              />
+            </View>
+            {errors.number &&
+              <Text style={{ fontSize: responsiveFontSize(1.5), color: 'red', marginBottom: 10 }}>{errors.number}</Text>
+            }
+            <Text style={styles.skipText}>We will send a 4 digit pin</Text>
+
+            <View style={styles.buttonwrapper}>
+              <CustomButton label={"NEXT"}
+                onPress={() => { handleSubmit() }}
+              />
+            </View>
+          </>
+        )}
+      </Formik>
     </LinearGradient>
   );
 };
@@ -87,7 +123,7 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     marginBottom: responsiveHeight(3),
   },
-  privacyText:{
+  privacyText: {
     color: '#065670',
     fontFamily: 'Poppins-Regular',
     fontSize: responsiveFontSize(2),
@@ -95,11 +131,11 @@ const styles = StyleSheet.create({
     marginTop: responsiveHeight(3),
 
   },
-  buttonwrapper:{
+  buttonwrapper: {
     paddingHorizontal: 25,
   },
-  input:{
-    fontSize:responsiveFontSize(2)
+  input: {
+    fontSize: responsiveFontSize(2)
   }
 
 });

@@ -75,65 +75,6 @@ const OfferScreen = ({ navigation }) => {
                 <CustomButton label={"Open Calender"} buttonIcon={false} onPress={() => setModalVisible(true)} />
             </View> */}
 
-            {/*------------------ alternate day modal start-------------*/}
-            <Modal
-                animationType="slide"
-                backdropColor={'#9A9A9A'}
-                backdropOpacity={10}
-                transparent={true}
-                visible={modalVisible}
-                onRequestClose={() => {
-
-                }}>
-                <View
-                    style={{
-                        height: '75%',
-                        marginTop: 'auto',
-                        backgroundColor: '#fff',
-                        borderColor: '#1697C0',
-                        borderWidth: 1,
-                        elevation: 20,
-                    }}>
-                    <View style={styles.modalBody}>
-
-                        <View style={{ marginTop: responsiveHeight(3) }}>
-                            <Calendar
-                                onDayPress={day => {
-                                    setSelected(day.dateString);
-                                }}
-                                markedDates={{
-                                    [selected]: { selected: true, disableTouchEvent: true, selectedDotColor: 'orange' }
-                                }}
-                                style={{
-                                    borderWidth: 1,
-                                    borderColor: '#E3EBF2',
-                                    borderRadius: 15,
-                                    height: responsiveHeight(50),
-                                    marginTop: 20,
-                                    marginBottom: 10
-                                }}
-                            />
-
-                        </View>
-
-
-                    </View>
-                    <TouchableOpacity
-                        style={styles.closeButton}
-                        onPress={() => {
-                            setModalVisible(!modalVisible);
-                        }}>
-                        <Entypo name="circle-with-cross" size={28} color="#1697C0" />
-                    </TouchableOpacity>
-                    <View style={styles.modalbuttonwrapper}>
-                        <CustomButton label={"Search"} buttonIcon={false} onPress={null} />
-                    </View>
-                </View>
-            </Modal>
-            {/*------------------ alternate day modal end-------------*/}
-
-
-
         </SafeAreaView>
     )
 }

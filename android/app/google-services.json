@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "985877741728",
+    "project_id": "swethadairyfarm-f7308",
+    "storage_bucket": "swethadairyfarm-f7308.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:985877741728:android:e80af66ef1cf5706a549c5",
+        "android_client_info": {
+          "package_name": "com.swethadairyfarm"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBR5Bz3L3s-3dqDC-DNLMwUpJoTz8dJEGo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

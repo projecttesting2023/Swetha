@@ -19,16 +19,21 @@ import { AuthContext } from '../context/AuthContext';
 import Logo from '../assets/images/misc/logo.svg';
 import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions';
 
-const OtpScreen = ({ navigation }) => {
+const OtpScreen = ({ navigation,route }) => {
     const [otp, setOtp] = useState('');
-
+    const [errors, setError] = useState(true)
+    const [errorText, setErrorText] = useState('Please enter OTP')
     // const { login, userToken } = useContext(AuthContext);
 
     const inputRef = useRef();
 
+    const onChangeCode = (code) => {
+        setOtp(code)
+        setError(false)
+    }
     const goToNextPage = (code) => {
         //console.log(`Code is ${code}, you are good to go!`)
-        navigation.navigate('HouseDetails')
+        navigation.navigate('HouseDetails',{phoneno:route?.params?.phoneno})
     }
 
     return (
@@ -48,26 +53,29 @@ const OtpScreen = ({ navigation }) => {
                 </View>
                 <Text style={styles.HeaderText}>Verify Account</Text>
                 <Text style={styles.HeaderText2}>Enter the 4 digit pin send to
-                    +91 4785481245</Text>
+                    +91 {route.params.phoneno}</Text>
                 <View style={styles.textinputview}>
                     <OTPInputView
                         ref={inputRef}
                         style={styles.otpTextView}
                         pinCount={4}
                         code={otp} //You can supply this prop or not. The component will be used as a controlled / uncontrolled component respectively.
-                        onCodeChanged={code => { setOtp(code) }}
-                        autoFocusOnLoad={Platform.OS == 'ios'? true: false}
+                        onCodeChanged={code => { onChangeCode(code) }}
+                        autoFocusOnLoad={Platform.OS == 'ios' ? true : false}
                         codeInputFieldStyle={styles.underlineStyleBase}
                         codeInputHighlightStyle={styles.underlineStyleHighLighted}
                         onCodeFilled={(code) => goToNextPage(code)}
                         keyboardType={'numeric'}
                         keyboardAppearance={'default'}
                     />
+                    {errors &&
+                        <Text style={{ fontSize: responsiveFontSize(1.5), color: 'red', marginBottom: 20,marginTop:-25,alignSelf:'center' }}>{errorText}</Text>
+                    }
                 </View>
 
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                     <Text style={{ color: '#808080', fontFamily: 'Poppins-Regular', fontSize: responsiveFontSize(2) }}>Didn’t received OTP?</Text>
-                    <TouchableOpacity onPress={() => navigation.navigate('HouseDetails')}>
+                    <TouchableOpacity onPress={() => {null}}>
                         <Text style={{ color: '#92D6EC', fontFamily: 'Poppins-SemiBold', fontSize: responsiveFontSize(2) }}>Resend OTP</Text>
                     </TouchableOpacity>
                 </View>

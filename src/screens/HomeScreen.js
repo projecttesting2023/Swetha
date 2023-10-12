@@ -29,6 +29,7 @@ import CustomHeader from '../components/CustomHeader';
 import Carousel from 'react-native-banner-carousel';
 import data from '../model/data'
 import { getCategory } from '../store/categorySlice';
+import AnimatingLoader from '../utils/AnimatingLoader';
 
 const BannerWidth = Dimensions.get('window').width;
 const ITEM_WIDTH = Math.round(BannerWidth * 0.7)
@@ -49,7 +50,7 @@ export default function HomeScreen({ navigation }) {
   }, [])
 
   useEffect(() => {
-    console.log(categorystatus,'categorystatus')
+    console.log(categorystatus, 'categorystatus')
     if (categorystatus == 'success') {
       setCategoryData(category)
       setIsLoading(false)
@@ -59,7 +60,7 @@ export default function HomeScreen({ navigation }) {
 
   }, [categorystatus])
 
-  if (isLoading) { 
+  if (isLoading) {
     return (
       <Loader />
     )
@@ -131,10 +132,12 @@ export default function HomeScreen({ navigation }) {
 
         <View style={{ marginTop: responsiveHeight(2), flexDirection: 'row', justifyContent: 'space-between' }}>
           <Text style={styles.categoryHeader}>Recomended</Text>
-          <Text style={styles.seealltext}>See All</Text>
+          <TouchableOpacity onPress={() => navigation.navigate('Product')}>
+            <Text style={styles.seealltext}>See All</Text>
+          </TouchableOpacity>
         </View>
         <View style={styles.recomendedContainer}>
-          <ScrollView horizontal={true}>
+          <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
             <View style={styles.singleRecomendedView}>
               <View style={[styles.recomendedImageView]}>
                 <Image source={milkImg} style={styles.recomendedimage} />
@@ -221,7 +224,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'center',
     marginRight: responsiveWidth(2.3),
-    marginBottom:responsiveHeight(1)
+    marginBottom: responsiveHeight(1)
   },
   categoryImageView: {
     height: responsiveHeight(15),
@@ -305,7 +308,7 @@ const styles = StyleSheet.create({
     fontWeight: '600'
   },
   floatingView: {
-    backgroundColor: 'red',
+    backgroundColor: '#FFF',
     height: 50,
     width: 50,
     borderRadius: 25,

@@ -15,14 +15,15 @@ import moment from "moment"
 import { useDispatch, useSelector } from 'react-redux';
 import { getProfileDetails } from '../store/profile/profileDetailsSlice';
 import Loader from '../utils/Loader';
+import { submitProfileDetails } from '../store/profile/profieDetailsSubmitSlice';
 
 
 
-const PersonalDetailsScreen = ({ navigation }) => {
+const PersonalDetailsScreen = ({ navigation,route }) => {
     const dispatch = useDispatch();
     const { data: profileDetails, status } = useSelector(state => state.profileDetails)
 
-    const [houseNo, osetHouseNo] = React.useState('');
+    const [mobileNo, setMobileNo] = React.useState('8900987876');
     const [name, setName] = useState('')
     const [email, setEmail] = useState('')
     const [selectedId, setSelectedId] = useState('1');
@@ -76,6 +77,15 @@ const PersonalDetailsScreen = ({ navigation }) => {
         )
     }
 
+    submitForm = () => {
+        console.log(selectedDate)
+        // dispatch(submitProfileDetails({
+        //     name: name,
+        //     email: email,
+        //     dob:selectedDate
+        // }))
+    }
+
     return (
         <SafeAreaView style={styles.Container}>
             <CustomHeader commingFrom={'Personal Details'} onPress={() => navigation.goBack()} title={'Personal Details'} />
@@ -86,9 +96,9 @@ const PersonalDetailsScreen = ({ navigation }) => {
                         <InputField
                             label={'Mobile Number'}
                             keyboardType="default"
-                            value={'9878765654'}
+                            value={mobileNo}
                             inputType={'nonedit'}
-                            onChangeText={(text) => osetHouseNo(text)}
+                            onChangeText={(text) => setMobileNo(text)}
                         />
                         <Text style={styles.TextInputHeader}>Full Name</Text>
                         <InputField
@@ -116,12 +126,14 @@ const PersonalDetailsScreen = ({ navigation }) => {
                                     value={selectedDate}
                                     textColor={'#000'}
                                     minimumDate={MIN_DATE}
-                                    maximumDate={MAX_DATE}
+                                   // maximumDate={MAX_DATE}
+                                    themeVariant="light"
                                     onChange={(event, selectedDate) => {
                                         //console.log(moment(selectedDate).format("DD-MM-YYYY"))
-                                        setSelectedDate(selectedDate)
-                                        setDate(moment(selectedDate).format("DD-MM-YYYY"))
                                         setOpen(false)
+                                        setSelectedDate(moment(selectedDate).format("DD-MM-YYYY"))
+                                        setDate(moment(selectedDate).format("DD-MM-YYYY"))
+                                        
                                     }}
                                 />:null}
                             <TouchableOpacity onPress={() => setOpen(true)}>
@@ -144,7 +156,7 @@ const PersonalDetailsScreen = ({ navigation }) => {
             </ScrollView>
             <View style={styles.buttonwrapper}>
                 <CustomButton label={"Save"}
-                    onPress={() => { null }}
+                    onPress={() => { submitForm() }}
                 />
             </View>
         </SafeAreaView>

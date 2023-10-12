@@ -18,7 +18,7 @@ import CustomSwitch from '../components/CustomSwitch';
 import ListItem from '../components/ListItem';
 import { AuthContext } from '../context/AuthContext';
 import { getProducts } from '../store/productSlice'
-
+import moment from "moment"
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 import { add } from '../store/cartSlice';
@@ -44,9 +44,13 @@ export default function ProductDetailsScreen({ navigation }) {
     const [selectedTab, setSelectedTab] = useState(1);
     const [modalVisible, setModalVisible] = useState(false);
     const [modalVisible2, setModalVisible2] = useState(false);
-    const [date, setDate] = useState(new Date())
-    const [datePlaceholder, setDatePlaceholder] = useState('')
-    const [open, setOpen] = useState(false)
+    const [repeatingdate, setrepeatingDate] = useState(new Date())
+    const [datePlaceholder, setDatePlaceholder] = useState('Select a date')
+    const [repeatingopen, setrepeatingOpen] = useState(false)
+
+    const [altdate, setaltDate] = useState(new Date())
+    const [altopen, setaltOpen] = useState(false)
+    const [datePlaceholder2, setDatePlaceholder2] = useState('Select a date')
 
     const [sundayQty, setSundayQty] = useState(1)
     const [mondayQty, setMondayQty] = useState(1)
@@ -308,23 +312,24 @@ export default function ProductDetailsScreen({ navigation }) {
                             </View>
                         </View>
                         <Text style={[styles.modalsectionHeader, { marginTop: 10, marginBottom: 10 }]}>Set Start Date</Text>
-                        <TouchableOpacity onPress={() => setOpen(true)}>
+                        <TouchableOpacity onPress={() => setrepeatingOpen(true)}>
                             <View style={styles.datebox}>
                                 <Entypo name="calendar" size={25} color="#000" />
-                                <Text style={styles.dayname}>{datePlaceholder}</Text>
+                                <Text style={styles.dayname}>  {datePlaceholder}</Text>
                             </View>
                         </TouchableOpacity>
                         <DatePicker
                             modal
-                            open={open}
-                            date={date}
+                            open={repeatingopen}
+                            date={repeatingdate}
                             onConfirm={(date) => {
-                                setOpen(false)
-                                setDate(date)
-                                //setDatePlaceholder(date)
+                                setrepeatingOpen(false)
+                                setrepeatingDate(date)
+                                console.log(date)
+                                setDatePlaceholder(moment(date).format("DD-MM-YYYY"))
                             }}
                             onCancel={() => {
-                                setOpen(false)
+                                setrepeatingOpen(false)
                             }}
                         />
                     </View>
@@ -399,23 +404,23 @@ export default function ProductDetailsScreen({ navigation }) {
                             </View>
                         </View>
                         <Text style={[styles.modalsectionHeader, { marginTop: 10, marginBottom: 10 }]}>Set Start Date</Text>
-                        <TouchableOpacity onPress={() => setOpen(true)}>
+                        <TouchableOpacity onPress={() => setaltOpen(true)}>
                             <View style={styles.datebox}>
                                 <Entypo name="calendar" size={25} color="#000" />
-                                <Text style={styles.dayname}>{datePlaceholder}</Text>
+                                <Text style={styles.dayname}>  {datePlaceholder2}</Text>
                             </View>
                         </TouchableOpacity>
                         <DatePicker
                             modal
-                            open={open}
-                            date={date}
+                            open={altopen}
+                            date={altdate}
                             onConfirm={(date) => {
-                                setOpen(false)
-                                setDate(date)
-                                //setDatePlaceholder(date)
+                                setaltOpen(false)
+                                setaltDate(date)
+                                setDatePlaceholder2(moment(date).format("DD-MM-YYYY"))
                             }}
                             onCancel={() => {
-                                setOpen(false)
+                                setaltOpen(false)
                             }}
                         />
                     </View>

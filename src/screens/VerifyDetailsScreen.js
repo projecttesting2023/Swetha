@@ -11,18 +11,12 @@ import { Dropdown } from 'react-native-element-dropdown';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { AuthContext } from '../context/AuthContext';
 
-const data = [
-    { label: 'Item 1', value: '1' },
-    { label: 'Item 2', value: '2' },
-    { label: 'Item 3', value: '3' },
-    { label: 'Item 4', value: '4' },
-];
 
-const VerifyDetailsScreen = ({ navigation }) => {
-    const [fullname, setFullname] = React.useState('');
-    const [email, setEmail] = React.useState('');
-    const [mobile, setMobile] = React.useState('');
-    const [address, setAddress] = React.useState('');
+const VerifyDetailsScreen = ({ navigation,route }) => {
+    const [fullname, setFullname] = React.useState(route?.params?.fullname);
+    const [email, setEmail] = React.useState(route?.params?.email);
+    const [mobile, setMobile] = React.useState(route?.params?.phoneno);
+    const [address, setAddress] = React.useState(route?.params?.address);
 
     const { login, userToken } = useContext(AuthContext);
     return (
@@ -63,6 +57,7 @@ const VerifyDetailsScreen = ({ navigation }) => {
                             label={'Address'}
                             keyboardType="default"
                             value={address}
+                            inputFieldType={'address'}
                             onChangeText={(text) => setAddress(text)}
                         />
                     </KeyboardAwareScrollView>

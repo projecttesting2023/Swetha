@@ -3,6 +3,7 @@ import { View, Text, SafeAreaView, StyleSheet, ScrollView, ImageBackground, Imag
 import CheckBox from '@react-native-community/checkbox'
 import CustomHeader from '../components/CustomHeader'
 import MaterialIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import AntDesign from 'react-native-vector-icons/AntDesign';
 import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions'
 import { TextInput, LongPressGestureHandler, State } from 'react-native-gesture-handler'
 import { deleteImg, editImg, phoneImg, searchImg, userPhoto } from '../utils/Images'
@@ -11,12 +12,7 @@ import InputField from '../components/InputField';
 import { Dropdown } from 'react-native-element-dropdown';
 import RadioGroup from 'react-native-radio-buttons-group';
 
-const data = [
-  { label: 'Item 1', value: '1' },
-  { label: 'Item 2', value: '2' },
-  { label: 'Item 3', value: '3' },
-  { label: 'Item 4', value: '4' },
-];
+
 
 
 const ProfileScreen = ({ navigation }) => {
@@ -40,7 +36,7 @@ const ProfileScreen = ({ navigation }) => {
               <Text style={styles.text1}>Personal Details</Text>
             </View>
             <TouchableOpacity onPress={() => navigation.navigate('PersonalDetails')}>
-              <MaterialIcons name="greater-than" size={22} color="#000" />
+              <AntDesign name="right" size={22} color="#000" />
             </TouchableOpacity>
           </View>
           <View style={styles.rechargeContainer}>
@@ -48,7 +44,7 @@ const ProfileScreen = ({ navigation }) => {
               <Text style={styles.text1}>Delivery Address</Text>
             </View>
             <TouchableOpacity onPress={() => navigation.navigate('DeliveryAddress')}>
-              <MaterialIcons name="greater-than" size={22} color="#000" />
+              <AntDesign name="right" size={22} color="#000" />
             </TouchableOpacity>
           </View>
           <View style={styles.rechargeContainer}>
@@ -56,7 +52,7 @@ const ProfileScreen = ({ navigation }) => {
               <Text style={styles.text1}>Delivery Instruction</Text>
             </View>
             <TouchableOpacity onPress={() => navigation.navigate('DeliveryInstruction')}>
-              <MaterialIcons name="greater-than" size={22} color="#000" />
+              <AntDesign name="right" size={22} color="#000" />
             </TouchableOpacity>
           </View>
           <View style={styles.rechargeContainer}>
@@ -64,7 +60,7 @@ const ProfileScreen = ({ navigation }) => {
               <Text style={styles.text1}>Order History</Text>
             </View>
             <TouchableOpacity onPress={() => navigation.navigate('Order History')}>
-              <MaterialIcons name="greater-than" size={22} color="#000" />
+              <AntDesign name="right" size={22} color="#000" />
             </TouchableOpacity>
           </View>
           <View style={styles.rechargeContainer}>
@@ -72,7 +68,7 @@ const ProfileScreen = ({ navigation }) => {
               <Text style={styles.text1}>Help & Support</Text>
             </View>
             <TouchableOpacity onPress={() => navigation.navigate('Help & Support')}>
-              <MaterialIcons name="greater-than" size={22} color="#000" />
+              <AntDesign name="right" size={22} color="#000" />
             </TouchableOpacity>
           </View>
         </View>

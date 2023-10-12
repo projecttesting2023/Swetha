@@ -1,9 +1,28 @@
 import React from 'react'
-import { View, Text, SafeAreaView, StyleSheet, ScrollView, ImageBackground, Image } from 'react-native'
+import { View, Text, SafeAreaView, StyleSheet, ScrollView, ImageBackground, Image,FlatList } from 'react-native'
 import CustomHeader from '../components/CustomHeader'
 import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 import { userPhoto } from '../utils/Images'
+import PushController from '../utils/PushController';
+
+let pushData = [
+  {
+    title: "First push",
+    message: "First push message"
+  },
+  {
+    title: "Second push",
+    message: "Second push message"
+  }
+]
+
+_renderItem = ({ item }) => (
+  <View key={item.title}>
+    <Text style={styles.title}>{item.title}</Text>
+    <Text style={styles.message}>{item.message}</Text>
+  </View>
+);
 
 const NotificationScreen = ({ navigation }) => {
   return (
@@ -13,7 +32,7 @@ const NotificationScreen = ({ navigation }) => {
         <TouchableOpacity style={{ marginBottom: 5 }} onPress={null}>
           <Text style={styles.clearNotitext}>Clear Notification</Text>
         </TouchableOpacity>
-        <View style={styles.notifictionContainer}>
+        {/* <View style={styles.notifictionContainer}>
           <View style={styles.singlenotificationView}>
             <Image
               source={userPhoto}
@@ -24,8 +43,8 @@ const NotificationScreen = ({ navigation }) => {
               <Text style={styles.notificationTextTwo}>Yesterday at 11:48 PM</Text>
             </View>
           </View>
-        </View>
-        <View style={styles.notifictionContainer}>
+        </View> */}
+        {/* <View style={styles.notifictionContainer}>
           <View style={styles.singlenotificationView}>
             <Image
               source={userPhoto}
@@ -36,7 +55,12 @@ const NotificationScreen = ({ navigation }) => {
               <Text style={styles.notificationTextTwo}>Yesterday at 11:48 PM</Text>
             </View>
           </View>
-        </View>
+        </View> */}
+        <FlatList
+              data={pushData}
+              renderItem={(item ) => this._renderItem(item)}
+              keyExtractor={(item ) => item.title}
+            />
       </ScrollView>
     </SafeAreaView>
   )

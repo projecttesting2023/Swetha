@@ -1,15 +1,36 @@
 import React, { useContext, useState } from 'react';
 import { SafeAreaView, View, Text, TouchableOpacity, StyleSheet, TextInput } from 'react-native';
-
+import * as yup from 'yup';
+import { Formik } from 'formik'
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Logo from '../assets/images/misc/logo.svg';
 import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions';
 import LinearGradient from 'react-native-linear-gradient';
 import CustomButton from '../components/CustomButton';
 
+const schema = yup.object().shape({
+  number: yup
+    .string()
+    .required('Phone No is required')
+    .min(10, 'Phone No must contain at least 10 characters')
+    //.test('len', 'Must be exactly 10 characters', val => val.length === 10)
+    .max(10, 'Phone No must contain at least 10 characters'),
+
+});
+
 const RegisterScreen = ({ navigation }) => {
   const [number, onChangeNumber] = React.useState('');
   const [referral, setReferral] = React.useState('');
+
+
+  const handleSubmit = (values) => {
+    //navigation.navigate('Otp')
+    console.log(values)
+    if (values.number) {
+      navigation.navigate('Otp', { phoneno: values.number })
+    }
+  }
+
   return (
     <LinearGradient colors={['#E0F8FF', 'rgba(255, 255, 255, 0.05)', 'rgba(217, 217, 217, 0.00)']} style={styles.Container}>
       <View style={styles.logoView}>
@@ -19,35 +40,54 @@ const RegisterScreen = ({ navigation }) => {
         //style={{transform: [{rotate: '-15deg'}]}}
         />
       </View>
-      <Text style={styles.HeaderText}>Enter Mobile Number</Text>
-      <View style={styles.buttonView}>
-        <Text style={styles.buttonText}>+91</Text>
-        <TextInput
-          style={styles.input}
-          onChangeText={onChangeNumber}
-          value={number}
-          placeholder="Enter 10 digit mobile no."
-          keyboardType="numeric"
-          //letterSpacing={1}
-        />
-      </View>
-      {/* <Text style={styles.skipText}>We will send a 4 digit pin</Text> */}
-      <Text style={styles.HeaderText}>Referral Code (if any)</Text>
-      <View style={styles.buttonView}>
-        <TextInput
-          style={styles.input}
-          onChangeText={setReferral}
-          value={referral}
-          placeholder="Enter referral code"
-          keyboardType="default"
-          //letterSpacing={1}
-        />
-      </View>
-      <View style={styles.buttonwrapper}>
-        <CustomButton label={"NEXT"}
-          onPress={() => { navigation.navigate('Otp') }}
-        />
-      </View>
+      <Formik
+        validationSchema={schema}
+        initialValues={{ number: '', referral: '' }}
+        onSubmit={values => handleSubmit(values)}
+      >
+        {({ handleChange, handleBlur, handleSubmit, values, errors }) => (
+          <>
+            <Text style={styles.HeaderText}>Enter Mobile Number</Text>
+            <View style={styles.buttonView}>
+              <Text style={styles.buttonText}>+91</Text>
+              <TextInput
+                style={styles.input}
+                //onChangeText={onChangeNumber}
+                value={values.number}
+                onChangeText={handleChange('number')}
+                onBlur={handleBlur('number')}
+                placeholder="Enter 10 digit mobile no."
+                keyboardType="numeric"
+              //letterSpacing={1}
+              />
+            </View>
+            {errors.number &&
+              <Text style={{ fontSize: responsiveFontSize(1.5), color: 'red', marginBottom: 10 }}>{errors.number}</Text>
+            }
+            {/* <Text style={styles.skipText}>We will send a 4 digit pin</Text> */}
+            <Text style={styles.HeaderText}>Referral Code (if any)</Text>
+            <View style={styles.buttonView}>
+              <TextInput
+                style={styles.input}
+                value={values.referral}
+                onChangeText={handleChange('referral')}
+                onBlur={handleBlur('referral')}
+                placeholder="Enter referral code"
+                keyboardType="default"
+              //letterSpacing={1}
+              />
+            </View>
+            {errors.referral &&
+              <Text style={{ fontSize: 10, color: 'red' }}>{errors.referral}</Text>
+            }
+            <View style={styles.buttonwrapper}>
+              <CustomButton label={"NEXT"}
+                onPress={() => { handleSubmit() }}
+              />
+            </View>
+          </>
+        )}
+      </Formik>
       <Text style={styles.privacyText}>I AGREE TO THE PRIVCY POLICY</Text>
     </LinearGradient>
   );
@@ -77,7 +117,7 @@ const styles = StyleSheet.create({
     width: '90%',
     height: responsiveHeight(7),
     borderRadius: 62,
-    marginBottom: responsiveHeight(3),
+    marginBottom: responsiveHeight(1.5),
     borderWidth: 1,
     borderColor: '#147999',
     alignItems: 'center',
@@ -99,7 +139,7 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     marginBottom: responsiveHeight(3),
   },
-  privacyText:{
+  privacyText: {
     color: '#065670',
     fontFamily: 'Poppins-Regular',
     fontSize: responsiveFontSize(2),
@@ -107,12 +147,13 @@ const styles = StyleSheet.create({
     marginTop: responsiveHeight(3),
 
   },
-  buttonwrapper:{
+  buttonwrapper: {
     paddingHorizontal: 25,
+    marginTop: responsiveHeight(2)
   },
-  input:{
-    fontSize:responsiveFontSize(2),
-    width:responsiveWidth(70)
+  input: {
+    fontSize: responsiveFontSize(2),
+    width: responsiveWidth(70)
   }
 
 });

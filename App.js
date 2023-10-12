@@ -4,10 +4,22 @@ import { Provider } from 'react-redux';
 import { AuthProvider } from './src/context/AuthContext';
 import AppNav from './src/navigation/AppNav';
 import store from './src/store/store';
-import { View, Text, LogBox } from 'react-native';
+import { View, Text, LogBox, Alert } from 'react-native';
 import Toast from 'react-native-toast-message';
+import OfflineNotice from './src/utils/OfflineNotice'
+// import PushController from './src/utils/PushController';
+import messaging from '@react-native-firebase/messaging';
+
 
 function App() {
+  const getFCMToken = async () => {
+    try {
+      const token = await messaging().getToken();
+      console.log(token);
+    } catch (e) {
+      console.log(e);
+    }
+  };
   useEffect(() => {
     LogBox.ignoreLogs([
       'Animated: `useNativeDriver`',
@@ -16,9 +28,18 @@ function App() {
       'Each child in a list should have a unique "key" prop',
       'VirtualizedLists should never be nested'
     ]);
+    getFCMToken()
+    
+    /* this is app foreground notification */
+    const unsubscribe = messaging().onMessage(async remoteMessage => {
+      Alert.alert('A new FCM message arrived!', JSON.stringify(remoteMessage));
+    });
+    return unsubscribe;
+
   }, [])
   return (
     <Provider store={store}>
+      <OfflineNotice />
       <AuthProvider>
         <AppNav />
       </AuthProvider>

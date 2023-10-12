@@ -10,19 +10,32 @@ export default function InputField({
   fieldButtonFunction,
   value,
   onChangeText,
-  helperText
+  helperText,
+  inputFieldType
 }) {
   //console.log(inputType,'dddd')
   return (
     <View style={styles.container}>
-      <TextInput
-        style={styles.input}
-        onChangeText={onChangeText}
-        value={value}
-        placeholder={label}
-        keyboardType={keyboardType}
-        editable={inputType == 'nonedit' ? false : true}
-      />
+      {inputFieldType == 'address' ?
+        <TextInput
+          style={styles.inputAddress}
+          onChangeText={onChangeText}
+          value={value}
+          placeholder={label}
+          keyboardType={keyboardType}
+          editable={inputType == 'nonedit' ? false : true}
+          multiline={inputFieldType == 'address' ? true : false}
+        /> :
+        <TextInput
+          style={styles.input}
+          onChangeText={onChangeText}
+          value={value}
+          placeholder={label}
+          keyboardType={keyboardType}
+          editable={inputType == 'nonedit' ? false : true}
+          multiline={inputFieldType == 'address' ? true : false}
+        />
+      }
     </View>
   );
 }
@@ -34,6 +47,17 @@ const styles = StyleSheet.create({
   },
   input: {
     height: responsiveHeight(7),
+    width: responsiveWidth(89),
+    color: '#797979',
+    borderColor: '#147999',
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingLeft: 20,
+    backgroundColor: '#FFF',
+    fontSize: responsiveFontSize(2)
+  },
+  inputAddress:{
+    height: responsiveHeight(10),
     width: responsiveWidth(89),
     color: '#797979',
     borderColor: '#147999',

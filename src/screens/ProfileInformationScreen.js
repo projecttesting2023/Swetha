@@ -10,10 +10,22 @@ import InputField from '../components/InputField';
 import { Dropdown } from 'react-native-element-dropdown';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import RadioGroup from 'react-native-radio-buttons-group';
+import * as yup from 'yup';
+import { Formik } from 'formik'
 
 import city from '../model/city'
 
-const ProfileInformationScreen = ({ navigation }) => {
+const schema = yup.object().shape({
+    fullname: yup
+        .string()
+        .required('Full name is required'),
+    pincode: yup
+        .string()
+        .required('Pincode is required'),
+
+});
+
+const ProfileInformationScreen = ({ navigation, route }) => {
     const [fullname, setFullname] = React.useState('');
     const [email, setEmail] = React.useState('');
     const [isFocus, setIsFocus] = useState(false);
@@ -21,6 +33,8 @@ const ProfileInformationScreen = ({ navigation }) => {
     const [pincode, setPincode] = React.useState('');
     const [area, setArea] = React.useState('');
     const [selectedId, setSelectedId] = useState('1');
+    const [cityerrors, setError] = useState(false)
+    const [errorText, setErrorText] = useState('Please select Floor No')
 
     const radioButtons = useMemo(() => ([
         {
@@ -39,6 +53,20 @@ const ProfileInformationScreen = ({ navigation }) => {
         }
     ]), []);
 
+    const handleSubmit = (values) => {
+        //console.log(Validations.verifyRequired(houseNo, 'Please enter House no'))
+        //navigation.navigate('ProfileInformation')
+        console.log(values)
+        if (values.fullname && values.pincode) {
+            if (!value) {
+                setError(true)
+            } else {
+                let address = `${route?.params?.address},${values?.pincode},${value}`
+                navigation.navigate('VerifyDetails', { phoneno: route?.params?.phoneno, fullname: values?.fullname, email: email, address:address })
+            }
+        }
+    }
+
     return (
         <LinearGradient colors={['#E0F8FF', 'rgba(255, 255, 255, 0.05)', 'rgba(217, 217, 217, 0.00)']} style={styles.Container}>
             <SafeAreaView>
@@ -49,73 +77,95 @@ const ProfileInformationScreen = ({ navigation }) => {
                     <Text style={styles.header}>Complete Profile</Text>
                 </View>
                 <ScrollView style={{ paddingHorizontal: 20, marginBottom: responsiveHeight(3) }}>
-                    <View style={{paddingBottom:responsiveHeight(5)}}>
-                        <KeyboardAwareScrollView showsVerticalScrollIndicator={false}>
-                            <Text style={styles.TextInputHeader}>Full Name</Text>
-                            <InputField
-                                label={'Enter your full name'}
-                                keyboardType="default"
-                                value={fullname}
-                                onChangeText={(text) => setFullname(text)}
-                            />
-                            <Text style={styles.TextInputHeader}>E-Mail (Optional)</Text>
-                            <InputField
-                                label={'Enter your email address'}
-                                keyboardType="default"
-                                value={email}
-                                onChangeText={(text) => setEmail(text)}
-                            />
-                            <Text style={styles.TextInputHeader}>City</Text>
-                            <Dropdown
-                                style={[styles.dropdown, isFocus && { borderColor: 'blue' }]}
-                                placeholderStyle={styles.placeholderStyle}
-                                selectedTextStyle={styles.selectedTextStyle}
-                                inputSearchStyle={styles.inputSearchStyle}
-                                data={city}
-                                search
-                                maxHeight={300}
-                                labelField="label"
-                                valueField="value"
-                                placeholder={!isFocus ? '  Select your city' : '...'}
-                                searchPlaceholder="Search..."
-                                value={value}
-                                onFocus={() => setIsFocus(true)}
-                                onBlur={() => setIsFocus(false)}
-                                onChange={item => {
-                                    setValue(item.value);
-                                    setIsFocus(false);
-                                }}
-                            />
-                            <Text style={styles.TextInputHeader}>Pincode</Text>
-                            <InputField
-                                label={'Enter your pincode'}
-                                keyboardType="numeric"
-                                value={pincode}
-                                onChangeText={(text) => setPincode(text)}
-                            />
-                            <Text style={styles.TextInputHeader}>Area (Optional)</Text>
-                            <InputField
-                                label={'Enter your area'}
-                                keyboardType="default"
-                                value={area}
-                                onChangeText={(text) => setArea(text)}
-                            />
-                            <Text style={styles.TextInputHeader}>Residency Type</Text>
-                            <View style={{ marginBottom: responsiveHeight(2) }}>
-                                <RadioGroup
-                                    radioButtons={radioButtons}
-                                    onPress={setSelectedId}
-                                    selectedId={selectedId}
-                                    layout='row'
-                                    borderColor='red'
-                                />
-                            </View>
-                        </KeyboardAwareScrollView>
-                        <View style={styles.buttonwrapper}>
-                            <CustomButton label={"NEXT"}
-                                onPress={() => { navigation.navigate('VerifyDetails') }}
-                            />
-                        </View>
+                    <View style={{ paddingBottom: responsiveHeight(5) }}>
+                        <Formik
+                            validationSchema={schema}
+                            initialValues={{ fullname: '', pincode: '' }}
+                            onSubmit={values => handleSubmit(values)}
+                        >
+                            {({ handleChange, handleBlur, handleSubmit, values, errors }) => (
+                                <>
+                                    <KeyboardAwareScrollView showsVerticalScrollIndicator={false}>
+                                        <Text style={styles.TextInputHeader}>Full Name</Text>
+                                        {errors.fullname &&
+                                            <Text style={{ fontSize: responsiveFontSize(1.5), color: 'red', marginBottom: 10 }}>{errors.fullname}</Text>
+                                        }
+                                        <InputField
+                                            label={'Enter your full name'}
+                                            keyboardType="default"
+                                            value={values.fullname}
+                                            onChangeText={handleChange('fullname')}
+                                            onBlur={handleBlur('fullname')}
+                                        />
+                                        <Text style={styles.TextInputHeader}>E-Mail (Optional)</Text>
+                                        <InputField
+                                            label={'Enter your email address'}
+                                            keyboardType="default"
+                                            value={email}
+                                            onChangeText={(text) => setEmail(text)}
+                                        />
+                                        <Text style={styles.TextInputHeader}>City</Text>
+                                        {cityerrors &&
+                                            <Text style={{ fontSize: responsiveFontSize(1.5), color: 'red', marginBottom: 10 }}>{errorText}</Text>
+                                        }
+                                        <Dropdown
+                                            style={[styles.dropdown, isFocus && { borderColor: 'blue' }]}
+                                            placeholderStyle={styles.placeholderStyle}
+                                            selectedTextStyle={styles.selectedTextStyle}
+                                            inputSearchStyle={styles.inputSearchStyle}
+                                            data={city}
+                                            search
+                                            maxHeight={300}
+                                            labelField="label"
+                                            valueField="value"
+                                            placeholder={!isFocus ? '  Select your city' : '...'}
+                                            searchPlaceholder="Search..."
+                                            value={value}
+                                            onFocus={() => setIsFocus(true)}
+                                            onBlur={() => setIsFocus(false)}
+                                            onChange={item => {
+                                                setValue(item.value);
+                                                setIsFocus(false);
+                                                setError(false)
+                                            }}
+                                        />
+                                        <Text style={styles.TextInputHeader}>Pincode</Text>
+                                        {errors.pincode &&
+                                            <Text style={{ fontSize: responsiveFontSize(1.5), color: 'red', marginBottom: 10 }}>{errors.pincode}</Text>
+                                        }
+                                        <InputField
+                                            label={'Enter your pincode'}
+                                            keyboardType="numeric"
+                                            value={values.pincode}
+                                            onChangeText={handleChange('pincode')}
+                                            onBlur={handleBlur('pincode')}
+                                        />
+                                        <Text style={styles.TextInputHeader}>Area (Optional)</Text>
+                                        <InputField
+                                            label={'Enter your area'}
+                                            keyboardType="default"
+                                            value={area}
+                                            onChangeText={(text) => setArea(text)}
+                                        />
+                                        <Text style={styles.TextInputHeader}>Residency Type</Text>
+                                        <View style={{ marginBottom: responsiveHeight(2) }}>
+                                            <RadioGroup
+                                                radioButtons={radioButtons}
+                                                onPress={setSelectedId}
+                                                selectedId={selectedId}
+                                                layout='row'
+                                                borderColor='red'
+                                            />
+                                        </View>
+                                    </KeyboardAwareScrollView>
+                                    <View style={styles.buttonwrapper}>
+                                        <CustomButton label={"NEXT"}
+                                            onPress={() => { handleSubmit() }}
+                                        />
+                                    </View>
+                                </>
+                            )}
+                        </Formik>
                     </View>
                 </ScrollView>
             </SafeAreaView>

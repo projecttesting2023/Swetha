@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { SafeAreaView, View, Text, TouchableOpacity,TouchableWithoutFeedback, StyleSheet, TextInput, ScrollView } from 'react-native';
+import { SafeAreaView, View, Text, TouchableOpacity, TouchableWithoutFeedback, StyleSheet, TextInput, ScrollView } from 'react-native';
 
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Logo from '../assets/images/misc/logo.svg';
@@ -9,95 +9,142 @@ import CustomButton from '../components/CustomButton';
 import InputField from '../components/InputField';
 import { Dropdown } from 'react-native-element-dropdown';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { Validations } from "../utils/Validation";
+import * as yup from 'yup';
+import { Formik } from 'formik'
+//import { Validations } from "../utils/Validation";
 
 const data = [
-    { label: 'Item 1', value: '1' },
-    { label: 'Item 2', value: '2' },
-    { label: 'Item 3', value: '3' },
-    { label: 'Item 4', value: '4' },
+    { label: 'Floor 1', value: 'Floor 1' },
+    { label: 'Floor 2', value: 'Floor 2' },
+    { label: 'Floor 3', value: 'Floor 3' },
+    { label: 'Floor 4', value: 'Floor 4' },
 ];
 
-const HouseDetailsScreen = ({ navigation }) => {
+const schema = yup.object().shape({
+    houseNo: yup
+        .string()
+        .required('House No is required'),
+    streetName: yup
+        .string()
+        .required('Street Name is required'),
+
+});
+
+const HouseDetailsScreen = ({ navigation,route  }) => {
     const [houseNo, setHouseNo] = React.useState('');
     const [houseName, setHouseName] = React.useState('');
     const [streetName, setStreetName] = React.useState('');
     const [landmark, setLandmark] = React.useState('');
     const [isFocus, setIsFocus] = useState(false);
     const [value, setValue] = useState(null);
+    const [floorerrors, setError] = useState(false)
+    const [errorText, setErrorText] = useState('Please select Floor No')
 
-    const handleSubmit = () =>{
-        console.log(Validations.verifyRequired(houseNo,'Please enter House no'))
-        navigation.navigate('ProfileInformation')
+    const handleSubmit = (values) => {
+        //console.log(Validations.verifyRequired(houseNo, 'Please enter House no'))
+        //navigation.navigate('ProfileInformation')
+        console.log(values)
+        if(values.houseNo && values.streetName){
+            if(!value){
+                setError(true)
+            }else{
+                let address = `${values.houseNo},${value},${values.streetName}`
+                navigation.navigate('ProfileInformation',{phoneno:route?.params?.phoneno, address: address})
+            }
+        }
     }
 
     return (
         <LinearGradient colors={['#E0F8FF', 'rgba(255, 255, 255, 0.05)', 'rgba(217, 217, 217, 0.00)']} style={styles.Container}>
             <SafeAreaView>
-            <View style={{ paddingHorizontal: 20, paddingVertical: 20, flexDirection: 'row', alignItems: 'center' }}>
-                <TouchableWithoutFeedback onPress={()=> navigation.goBack()}>
-                <MaterialIcons name="arrow-back" size={25} color="#000" />
-                </TouchableWithoutFeedback>
-                <Text style={styles.header}>Independent house</Text>
-            </View>
-            <ScrollView style={{ paddingHorizontal: 20,marginBottom:responsiveHeight(3) }}>
-                <KeyboardAwareScrollView showsVerticalScrollIndicator={false}>
-                    <Text style={styles.TextInputHeader}>House No.</Text>
-                    <InputField
-                        label={'Enter House No'}
-                        keyboardType="default"
-                        value={houseNo}
-                        onChangeText={(text) => setHouseNo(text)}
-                    />
-                    <Text style={styles.TextInputHeader}>House Name (Optional)</Text>
-                    <InputField
-                        label={'Enter house name'}
-                        keyboardType="default"
-                        value={houseName}
-                        onChangeText={(text) => setHouseName(text)}
-                    />
-                    <Text style={styles.TextInputHeader}>Floor Number</Text>
-                    <Dropdown
-                        style={[styles.dropdown, isFocus && { borderColor: 'blue' }]}
-                        placeholderStyle={styles.placeholderStyle}
-                        selectedTextStyle={styles.selectedTextStyle}
-                        inputSearchStyle={styles.inputSearchStyle}
-                        data={data}
-                        search
-                        maxHeight={300}
-                        labelField="label"
-                        valueField="value"
-                        placeholder={!isFocus ? 'Select your floor' : '...'}
-                        searchPlaceholder="Search..."
-                        value={value}
-                        onFocus={() => setIsFocus(true)}
-                        onBlur={() => setIsFocus(false)}
-                        onChange={item => {
-                            setValue(item.value);
-                            setIsFocus(false);
-                        }}
-                    />
-                    <Text style={styles.TextInputHeader}>Street/Colony</Text>
-                    <InputField
-                        label={'Enter street/colony name'}
-                        keyboardType="default"
-                        value={streetName}
-                        onChangeText={(text) => setStreetName(text)}
-                    />
-                    <Text style={styles.TextInputHeader}>Landmark (Optional)</Text>
-                    <InputField
-                        label={'Add landmark'}
-                        keyboardType="default"
-                        value={landmark}
-                        onChangeText={(text) => setLandmark(text)}
-                    />
-                </KeyboardAwareScrollView>
-                <View style={styles.buttonwrapper}>
-                    <CustomButton label={"NEXT"}
-                        onPress={() => { handleSubmit() }}
-                    />
+                <View style={{ paddingHorizontal: 20, paddingVertical: 20, flexDirection: 'row', alignItems: 'center' }}>
+                    <TouchableWithoutFeedback onPress={() => navigation.goBack()}>
+                        <MaterialIcons name="arrow-back" size={25} color="#000" />
+                    </TouchableWithoutFeedback>
+                    <Text style={styles.header}>Independent house</Text>
                 </View>
-            </ScrollView>
+                <ScrollView style={{ paddingHorizontal: 20, marginBottom: responsiveHeight(3) }}>
+                    <Formik
+                        validationSchema={schema}
+                        initialValues={{ houseNo: '', streetName: '' }}
+                        onSubmit={values => handleSubmit(values)}
+                    >
+                        {({ handleChange, handleBlur, handleSubmit, values, errors }) => (
+                            <>
+                                <KeyboardAwareScrollView showsVerticalScrollIndicator={false}>
+                                    <Text style={styles.TextInputHeader}>House No.</Text>
+                                    {errors.houseNo &&
+                                        <Text style={{ fontSize: responsiveFontSize(1.5), color: 'red', marginBottom: 10 }}>{errors.houseNo}</Text>
+                                    }
+                                    <InputField
+                                        label={'Enter House No'}
+                                        keyboardType="default"
+                                        //value={houseNo}
+                                        //onChangeText={(text) => setHouseNo(text)}
+                                        value={values.houseNo}
+                                        onChangeText={handleChange('houseNo')}
+                                        onBlur={handleBlur('houseNo')}
+                                    />
+                                    <Text style={styles.TextInputHeader}>House Name (Optional)</Text>
+                                    <InputField
+                                        label={'Enter house name'}
+                                        keyboardType="default"
+                                        value={houseName}
+                                        onChangeText={(text) => setHouseName(text)}
+                                    />
+                                    <Text style={styles.TextInputHeader}>Floor Number</Text>
+                                    {floorerrors &&
+                                        <Text style={{ fontSize: responsiveFontSize(1.5), color: 'red', marginBottom: 10 }}>{errorText}</Text>
+                                    }
+                                    <Dropdown
+                                        style={[styles.dropdown, isFocus && { borderColor: 'blue' }]}
+                                        placeholderStyle={styles.placeholderStyle}
+                                        selectedTextStyle={styles.selectedTextStyle}
+                                        inputSearchStyle={styles.inputSearchStyle}
+                                        data={data}
+                                        search
+                                        maxHeight={300}
+                                        labelField="label"
+                                        valueField="value"
+                                        placeholder={!isFocus ? 'Select your floor' : '...'}
+                                        searchPlaceholder="Search..."
+                                        value={value}
+                                        onFocus={() => setIsFocus(true)}
+                                        onBlur={() => setIsFocus(false)}
+                                        onChange={item => {
+                                            setValue(item.value);
+                                            setIsFocus(false);
+                                            setError(false)
+                                        }}
+                                    />
+                                    <Text style={styles.TextInputHeader}>Street/Colony</Text>
+                                    {errors.streetName &&
+                                        <Text style={{ fontSize: responsiveFontSize(1.5), color: 'red', marginBottom: 10 }}>{errors.streetName}</Text>
+                                    }
+                                    <InputField
+                                        label={'Enter street/colony name'}
+                                        keyboardType="default"
+                                        value={values.streetName}
+                                        onChangeText={handleChange('streetName')}
+                                        onBlur={handleBlur('streetName')}
+                                    />
+                                    <Text style={styles.TextInputHeader}>Landmark (Optional)</Text>
+                                    <InputField
+                                        label={'Add landmark'}
+                                        keyboardType="default"
+                                        value={landmark}
+                                        onChangeText={(text) => setLandmark(text)}
+                                    />
+                                </KeyboardAwareScrollView>
+                                <View style={styles.buttonwrapper}>
+                                    <CustomButton label={"NEXT"}
+                                        onPress={() => { handleSubmit() }}
+                                    />
+                                </View>
+                            </>
+                        )}
+                    </Formik>
+                </ScrollView>
             </SafeAreaView>
         </LinearGradient>
     );
@@ -136,7 +183,7 @@ const styles = StyleSheet.create({
     },
     placeholderStyle: {
         fontSize: responsiveFontSize(2),
-        color:'#797979'
+        color: '#797979'
     },
     selectedTextStyle: {
         fontSize: responsiveFontSize(2),
