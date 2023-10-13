@@ -1,7 +1,8 @@
 #import "AppDelegate.h"
+#import <Firebase.h> //firebase push notification
 #import "Orientation.h" //add this line
 #import <React/RCTBundleURLProvider.h>
-#import <Firebase.h> //firebase push notification
+
 
 @implementation AppDelegate
 

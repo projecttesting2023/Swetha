@@ -29,7 +29,6 @@ import CustomHeader from '../components/CustomHeader';
 import Carousel from 'react-native-banner-carousel';
 import data from '../model/data'
 import { getCategory } from '../store/categorySlice';
-import AnimatingLoader from '../utils/AnimatingLoader';
 
 const BannerWidth = Dimensions.get('window').width;
 const ITEM_WIDTH = Math.round(BannerWidth * 0.7)
