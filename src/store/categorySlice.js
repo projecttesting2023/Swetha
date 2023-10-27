@@ -31,9 +31,15 @@ const categorySlice = createSlice({
 export const { fetchCategory } = categorySlice.actions;
 export default categorySlice.reducer;
 
-export const getCategory = createAsyncThunk('category/get', async () => {
-    const res = await axios.get('https://fakestoreapi.com/products');
-    const result = await res.data;
+export const getCategory = createAsyncThunk('category/get', async (usertoken) => {
+    console.log(usertoken,'user token from category slice')
+    const res = await axios.get('http://162.215.253.89/PCP2023/public/api/user/categories',{
+                headers: {
+                    "Authorization": 'Bearer ' + usertoken,
+                    "Content-Type": 'application/json'
+                },
+            });
+    const result = await res.data.categorie;
     return result;
 
 })

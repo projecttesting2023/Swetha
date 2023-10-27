@@ -31,9 +31,13 @@ const holidaySlice = createSlice({
 export const { fetchProducts } = holidaySlice.actions;
 export default holidaySlice.reducer;
 
-export const getHoliday = createAsyncThunk('holiday/get', async () => {
-    const res = await axios.get('https://fakestoreapi.com/products');
-    const result = await res.data;
+export const getHoliday = createAsyncThunk('holiday/get', async (usertoken) => {
+    const res = await axios.get('http://162.215.253.89/PCP2023/public/api/user/holidaydetails',{
+        headers: {
+            "Authorization": 'Bearer ' + usertoken,
+            "Content-Type": 'application/json'
+        }});
+    const result = await res.data.holidays;
     return result;
 
 })

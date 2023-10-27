@@ -10,7 +10,9 @@ import Entypo from 'react-native-vector-icons/Entypo';
 import { getHoliday } from '../store/holidaySlice';
 import { useDispatch, useSelector } from 'react-redux';
 import Loader from '../utils/Loader';
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
+import Toast from 'react-native-toast-message';
 
 const HolidaysScreen = ({ navigation }) => {
     const dispatch = useDispatch();
@@ -22,8 +24,9 @@ const HolidaysScreen = ({ navigation }) => {
     const [isLoading, setIsLoading] = useState(true)
 
     const fetchHoliday = () => {
-        dispatch(getHoliday())
-        
+        AsyncStorage.getItem('userToken', (err, usertoken) => {
+            dispatch(getHoliday(usertoken))
+        });
     }
 
     useEffect(() => {
@@ -31,9 +34,10 @@ const HolidaysScreen = ({ navigation }) => {
     }, [])
 
     useEffect(() => {
-         console.log(status, 'holiday status')
+        console.log(status, 'holiday status')
         if (status == 'success') {
             setHolidayData(holiday)
+            console.log(holiday, 'holidayyyyyy')
             setIsLoading(false)
         } else if (status == 'loading') {
             setIsLoading(true)
@@ -46,13 +50,82 @@ const HolidaysScreen = ({ navigation }) => {
         )
     }
 
+    const deleteHoliday = (date) => {
+        console.log(date, 'ytytytrtrtrtt')
+        setIsLoading(true);
+        const option = {
+            "date": date
+        }
+        AsyncStorage.getItem('userToken', (err, usertoken) => {
+            axios.delete(`http://162.215.253.89/PCP2023/public/api/user/holidaydestroy`,
+                {
+                    headers: {
+                        "Authorization": 'Bearer ' + usertoken,
+                        "Content-Type": 'application/json'
+                    },
+                    data: option
+                })
+                .then(res => {
+                    Toast.show({
+                        type: 'success',
+                        text1: 'Hello',
+                        text2: "Holiday successfully deleted",
+                        position: 'top',
+                        topOffset: Platform.OS == 'ios' ? 55 : 20
+                    });
+                    fetchHoliday();
+                    setIsLoading(false);
+                })
+                .catch(e => {
+                    console.log(`Holiday error ${e}`)
+                });
+
+        });
+    }
+
     const renderHoliday = ({ item, index }) => {
         return (
             <View style={styles.daylist}>
-                <Text style={{ fontFamily: 'Poppins-Regular', fontWeight: '600', fontSize: responsiveFontSize(2), color: '#000' }}>Sep 30 2023</Text>
-                <MaterialIcons name="delete-outline" size={25} color="#FF0000" />
+                <Text style={{ fontFamily: 'Poppins-Regular', fontWeight: '600', fontSize: responsiveFontSize(2), color: '#000' }}>{item.date}</Text>
+                <TouchableOpacity onPress={() => deleteHoliday(item.date)}>
+                    <MaterialIcons name="delete-outline" size={25} color="#FF0000" />
+                </TouchableOpacity>
             </View>
         )
+    }
+
+    const submitHoliday = () => {
+        setIsLoading(true);
+        setModalVisible(false)
+        console.log(selected, 'datttttttt')
+        const option = {
+            "date": selected
+        }
+        AsyncStorage.getItem('userToken', (err, usertoken) => {
+            axios.post(`http://162.215.253.89/PCP2023/public/api/user/holidays`,
+                option,
+                {
+                    headers: {
+                        "Authorization": 'Bearer ' + usertoken,
+                        "Content-Type": 'application/json'
+                    },
+                })
+                .then(res => {
+                    Toast.show({
+                        type: 'success',
+                        text1: 'Hello',
+                        text2: "Holiday successfully added",
+                        position: 'top',
+                        topOffset: Platform.OS == 'ios' ? 55 : 20
+                    });
+                    fetchHoliday();
+                    setIsLoading(false);
+                })
+                .catch(e => {
+                    console.log(`Holiday error ${e}`)
+                });
+
+        });
     }
 
     return (
@@ -125,7 +198,7 @@ const HolidaysScreen = ({ navigation }) => {
                         <Entypo name="circle-with-cross" size={28} color="#1697C0" />
                     </TouchableOpacity>
                     <View style={styles.modalbuttonwrapper}>
-                        <CustomButton label={"Add"} buttonIcon={false} onPress={null} />
+                        <CustomButton label={"Add"} buttonIcon={false} onPress={() => submitHoliday()} />
                     </View>
                 </View>
             </Modal>

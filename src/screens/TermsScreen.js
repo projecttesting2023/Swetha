@@ -9,11 +9,12 @@ import {
     TouchableWithoutFeedback,
     FlatList,
     StyleSheet,
-    Dimensions
+    Dimensions,
+    useWindowDimensions
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Feather from 'react-native-vector-icons/Feather';
-
+import RenderHTML from "react-native-render-html";
 
 import CustomSwitch from '../components/CustomSwitch';
 import ListItem from '../components/ListItem';
@@ -29,7 +30,7 @@ import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-nat
 import CustomHeader from '../components/CustomHeader';
 import data from '../model/data'
 import CustomButton from '../components/CustomButton';
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
 const BannerWidth = Dimensions.get('window').width;
 const ITEM_WIDTH = Math.round(BannerWidth * 0.7)
 const { height, width } = Dimensions.get('screen')
@@ -41,17 +42,42 @@ export default function TermsScreen({ navigation }) {
     const { userInfo } = useContext(AuthContext)
 
     const [selectedTab, setSelectedTab] = useState(1);
+    const [isLoading, setIsLoading] = useState(true)
+    const [termsCondition,setTermsCondition] = useState(`
+    <h1>This HTML snippet is now rendered with native components !</h1>
+    <h2>Enjoy a webview-free and blazing fast application</h2>
+    <img src="https://i.imgur.com/dHLmxfO.jpg?2" />
+    <em style="textAlign: center;">Look at how happy this native cat is</em>
+  `)
 
-    const fetchProducts = () => {
-        dispatch(getProducts())
+    const { width } = useWindowDimensions();
 
+    const fetchTerms = () => {
+        AsyncStorage.getItem('userToken', (err, usertoken) => {
+            axios.get(`http://162.215.253.89/PCP2023/public/api/user/termsandconditions`,
+                {
+                    headers: {
+                        "Authorization": 'Bearer ' + usertoken,
+                        "Content-Type": 'application/json'
+                    },
+                })
+                .then(res => {
+                    // console.log(res.data.Termsandconditions[0], 'terms and condition')
+                    setTermsCondition(res.data.Termsandconditions[0].description)
+                    setIsLoading(false);
+                })
+                .catch(e => {
+                    console.log(`terms and condition error ${e}`)
+                });
+
+        });
     }
 
     useEffect(() => {
-        fetchProducts();
+        fetchTerms();
     }, [])
 
-    if (status == 'loading') {
+    if (isLoading) {
         return (
             <Loader />
         )
@@ -63,7 +89,7 @@ export default function TermsScreen({ navigation }) {
         <SafeAreaView style={styles.Container}>
             <CustomHeader commingFrom={'Terms'} title={'Terms & Conditions'} onPress={() => navigation.goBack()} onPressProfile={() => navigation.navigate('Profile')} />
             <ScrollView style={styles.wrapper}>
-                
+            <RenderHTML contentWidth={width} source={{ html:termsCondition }} /> 
             </ScrollView>
         </SafeAreaView >
     );

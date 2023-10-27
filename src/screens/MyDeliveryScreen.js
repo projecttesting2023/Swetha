@@ -31,7 +31,7 @@ const MyDeliveryScreen = ({ navigation }) => {
     }, []) 
 
     useEffect(() => {
-        console.log(status, 'my delivery status')
+        //console.log(status, 'my delivery status')
        if (status == 'success') {
         setMyDeliveriesData(myDeliveries)
            setIsLoading(false)

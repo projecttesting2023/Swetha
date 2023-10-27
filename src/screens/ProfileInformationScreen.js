@@ -1,4 +1,4 @@
-import React, { useContext, useState, useMemo } from 'react';
+import React, { useContext, useState, useMemo, useEffect } from 'react';
 import { SafeAreaView, View, Text, TouchableOpacity, TouchableWithoutFeedback, StyleSheet, TextInput, ScrollView } from 'react-native';
 
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -62,7 +62,24 @@ const ProfileInformationScreen = ({ navigation, route }) => {
                 setError(true)
             } else {
                 let address = `${route?.params?.address},${values?.pincode},${value}`
-                navigation.navigate('VerifyDetails', { phoneno: route?.params?.phoneno, fullname: values?.fullname, email: email, address:address })
+                let data = {
+                    usertoken:route?.params?.usertoken,
+                    phoneno:route?.params?.phoneno,
+                    houseno:route?.params?.houseno,
+                    housename:route?.params?.housename,
+                    floorno:route?.params?.floorno,
+                    streetname:route?.params?.streetname,
+                    landmark:route?.params?.landmark,
+                    address:address,
+                    fullname:values?.fullname,
+                    email:email,
+                    city: value,
+                    pincode:values.pincode,
+                    area: area,
+                    residencytype: selectedId
+
+                }
+                navigation.navigate('VerifyDetails', data)
             }
         }
     }

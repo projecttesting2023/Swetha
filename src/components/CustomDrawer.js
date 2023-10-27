@@ -40,7 +40,7 @@ const CustomDrawer = props => {
               marginBottom: 5,
               marginTop:5
             }}>
-            Namaste! {userInfo.firstName}
+            Namaste! {userInfo.name}
           </Text>
         </View>
         <View style={{ flex: 1, backgroundColor: '#fff' }}>

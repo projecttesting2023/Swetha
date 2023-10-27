@@ -7,8 +7,12 @@ const initialState = {
 };
 
 export const getProfileDetails = createAsyncThunk('profileDetails/get', async () => {
-    const res = await axios.get('https://randomuser.me/api/');
-    const result = await res.data;
+    const res = await axios.get('http://162.215.253.89/PCP2023/public/api/user/getUser',{
+            headers: {
+                "Authorization": 'Bearer ' + token,
+                "Content-Type": 'application/json'
+            }});
+    const result = await  res.data.user;
     return result;
 
 })

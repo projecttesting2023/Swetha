@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect,useContext } from 'react';
 import { View, Text, SafeAreaView, StyleSheet, ScrollView, ImageBackground, Image, TouchableOpacity, KeyboardAwareScrollView } from 'react-native'
 import CheckBox from '@react-native-community/checkbox'
 import CustomHeader from '../components/CustomHeader'
@@ -11,12 +11,26 @@ import CustomButton from '../components/CustomButton'
 import InputField from '../components/InputField';
 import { Dropdown } from 'react-native-element-dropdown';
 import RadioGroup from 'react-native-radio-buttons-group';
-
-
-
+import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { AuthContext } from '../context/AuthContext';
 
 const ProfileScreen = ({ navigation }) => {
+  const { userInfo, logout } = useContext(AuthContext);
+  const [walletAmount, setWalletAmount] = React.useState('0.00')
 
+  const fetchProfileDetails = () => {
+    AsyncStorage.getItem('userInfo', (err, userInfo) => {
+      let data = JSON.parse(userInfo)
+      // console.log(data)
+      setWalletAmount(data.walate)
+     
+  });
+}
+
+  useEffect(() => {
+    fetchProfileDetails()
+  }, [])
   return (
     <SafeAreaView style={styles.Container}>
       <CustomHeader commingFrom={'Profile'} onPress={() => navigation.goBack()} title={'Profile'} />
@@ -25,7 +39,7 @@ const ProfileScreen = ({ navigation }) => {
           <View style={styles.rechargeContainer}>
             <View>
               <Text style={styles.text1}>Wallet Balance</Text>
-              <Text style={styles.value1}>₹0.00</Text>
+              <Text style={styles.value1}>₹{walletAmount}</Text>
             </View>
             <TouchableOpacity onPress={() => navigation.navigate('Wallet')}>
               <Text style={{ color: '#147999', fontFamily: 'Poppins-Regular', fontSize: responsiveFontSize(2) }}>Recharge</Text>
@@ -76,7 +90,7 @@ const ProfileScreen = ({ navigation }) => {
 
       </ScrollView>
       <View style={styles.buttonwrapper}>
-        <CustomButton label={"Logout"} buttonIcon={false} onPress={null} />
+        <CustomButton label={"Logout"} buttonIcon={false} onPress={()=>logout()} />
       </View>
 
     </SafeAreaView>

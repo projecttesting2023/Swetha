@@ -25,6 +25,7 @@ export default function InputField({
           keyboardType={keyboardType}
           editable={inputType == 'nonedit' ? false : true}
           multiline={inputFieldType == 'address' ? true : false}
+          placeholderTextColor="#808080"
         /> :
         <TextInput
           style={styles.input}
@@ -34,6 +35,7 @@ export default function InputField({
           keyboardType={keyboardType}
           editable={inputType == 'nonedit' ? false : true}
           multiline={inputFieldType == 'address' ? true : false}
+          placeholderTextColor="#808080"
         />
       }
     </View>

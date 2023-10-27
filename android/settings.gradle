@@ -4,3 +4,5 @@ include ':app'
 includeBuild('../node_modules/@react-native/gradle-plugin')
 include ':react-native-push-notification'
 project(':react-native-push-notification').projectDir = file('../node_modules/react-native-push-notification/android')
+include ':react-native-html-to-pdf'
+project(':react-native-html-to-pdf').projectDir =  file('../node_modules/react-native-html-to-pdf/android')

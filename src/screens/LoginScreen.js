@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { SafeAreaView, View, Text, TouchableOpacity, StyleSheet, TextInput } from 'react-native';
 
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -8,6 +8,9 @@ import LinearGradient from 'react-native-linear-gradient';
 import CustomButton from '../components/CustomButton';
 import * as yup from 'yup';
 import { Formik } from 'formik'
+import { useDispatch, useSelector } from 'react-redux';
+import { getPhoneVerify } from '../store/auth/phoneVerifySlice';
+import Loader from '../utils/Loader';
 
 const schema = yup.object().shape({
   number: yup
@@ -22,16 +25,44 @@ const schema = yup.object().shape({
 
 
 const LoginScreen = ({ navigation }) => {
+  const dispatch = useDispatch();
+  const { data: phoneVerify, status } = useSelector(state => state.phoneVerify)
   const [number, onChangeNumber] = React.useState('');
+  const [isLoading, setIsLoading] = useState(false)
 
   const handleSubmit = (values) => {
-    //navigation.navigate('Otp')
-    console.log(values)
+    //console.log(values)
     if (values.number) {
-      navigation.navigate('Otp', { phoneno: values.number })
+      const option = {
+        "phone": values.number,
+        "refcode": '',
+        "flage" :'login'
+      }
+      dispatch(getPhoneVerify(option))
+      // navigation.navigate('Otp', { phoneno: values.number })
     }
   }
   
+  useEffect(() => {
+    console.log(status, 'phoneVerifystatus')
+    if (status == 'success') {
+      console.log(phoneVerify, 'data from phone Verify api')
+      setIsLoading(false)
+      navigation.push('Otp', { phoneno: phoneVerify.phone, page: 'login' })
+    } else if (status == 'loading') {
+      setIsLoading(true)
+    } else if (status == 'error') {
+      setIsLoading(false)
+      alert('Something went wrong or Please register first' )
+    }
+  }, [status]) 
+
+  if (isLoading) {
+    return (
+      <Loader />
+    )
+  }
+
   return (
     <LinearGradient colors={['#E0F8FF', 'rgba(255, 255, 255, 0.05)', 'rgba(217, 217, 217, 0.00)']} style={styles.Container}>
       <View style={styles.logoView}>
@@ -57,6 +88,7 @@ const LoginScreen = ({ navigation }) => {
                 onBlur={handleBlur('number')}
                 placeholder="Enter 10 digit mobile no."
                 keyboardType="numeric"
+                placeholderTextColor="#808080"
               //letterSpacing={2}
               />
             </View>
@@ -135,7 +167,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 25,
   },
   input: {
-    fontSize: responsiveFontSize(2)
+    fontSize: responsiveFontSize(2),
+    color:'#808080'
   }
 
 });

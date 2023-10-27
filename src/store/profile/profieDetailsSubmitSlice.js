@@ -6,12 +6,31 @@ const initialState = {
     status: 'idle'
 };
 
-export const submitProfileDetails = createAsyncThunk('profileDetails/post', async (options) => {
-
+export const submitProfileDetails = createAsyncThunk('profileDetailsSubmit/put', async (options) => {
+    const data = {
+        "hoseno": options.hoseno,
+        "hoseno_name": options.hoseno_name,
+        "floorno": options.floorno,
+        "street": options.street,
+        "landmark": options.landmark,
+        "city": options.city,
+        "pin": options.pin,
+        "area": options.area,
+        "residency_type": options.residency_type,
+        "name": options.name,
+        "email": options.email,
+        "address": options.address
+    }
     try {
-        const res = await axios.post(
-            'https://randomuser.me/api/',
-            options
+        const res = await axios.put(
+            'http://162.215.253.89/PCP2023/public/api/user/updateUser',
+            data,
+            {
+                headers: {
+                    "Authorization": 'Bearer ' + options.usertoken,
+                    "Content-Type": 'application/json'
+                },
+            }
         );
         const result = await res.data;
         return result;
@@ -21,7 +40,7 @@ export const submitProfileDetails = createAsyncThunk('profileDetails/post', asyn
 })
 
 const profileDetailsSubmitSlice = createSlice({
-    name: 'profileDetails',
+    name: 'profileDetailsSubmit',
     initialState,
     reducers: {
         // fetchProducts(state, action) {

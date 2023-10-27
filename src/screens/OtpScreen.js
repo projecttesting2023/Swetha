@@ -18,12 +18,18 @@ import InputField from '../components/InputField';
 import { AuthContext } from '../context/AuthContext';
 import Logo from '../assets/images/misc/logo.svg';
 import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions';
+import { useDispatch, useSelector } from 'react-redux';
+import { getOtpVerify } from '../store/auth/otpVerifySlice';
+import Loader from '../utils/Loader';
 
-const OtpScreen = ({ navigation,route }) => {
+const OtpScreen = ({ navigation, route }) => {
+    const dispatch = useDispatch();
+    const { data: otpVerify, status: otpstatus } = useSelector(state => state.otpVerify)
     const [otp, setOtp] = useState('');
     const [errors, setError] = useState(true)
     const [errorText, setErrorText] = useState('Please enter OTP')
-    // const { login, userToken } = useContext(AuthContext);
+    const [isLoading, setIsLoading] = useState(false)
+    const { login, userToken } = useContext(AuthContext);
 
     const inputRef = useRef();
 
@@ -32,8 +38,51 @@ const OtpScreen = ({ navigation,route }) => {
         setError(false)
     }
     const goToNextPage = (code) => {
-        //console.log(`Code is ${code}, you are good to go!`)
-        navigation.navigate('HouseDetails',{phoneno:route?.params?.phoneno})
+        // navigation.navigate('HouseDetails',{phoneno:route?.params?.phoneno})
+        setOtp(code)
+        const option = {
+            "phone": route?.params?.phoneno,
+            "otp": code
+        }
+        if (errors == false) {
+            dispatch(getOtpVerify(option))
+        }
+    }
+
+    const resendOtp = () =>{
+        const option = {
+            "phone": route?.params?.phoneno,
+            "otp": code
+        }
+        if (errors == false) {
+            dispatch(getOtpVerify(option))
+        }
+    }
+
+    useEffect(() => {
+        console.log(otpstatus, 'otpVerifystatus')
+        if (otpstatus == 'success') {
+            console.log(otpVerify, 'data from otp Verify api')
+            setIsLoading(false)
+            if(route?.params?.page == 'login'){
+                login(otpVerify.token)
+            }else{
+                navigation.navigate('HouseDetails', { phoneno: route?.params?.phoneno, usertoken: otpVerify.token })
+            }
+            
+        } else if (otpstatus == 'loading') {
+            setIsLoading(true)
+        } else if (otpstatus == 'error') {
+            setIsLoading(false)
+            alert('Invalid OTP')
+        }
+
+    }, [otpstatus])
+
+    if (isLoading) {
+        return (
+            <Loader />
+        )
     }
 
     return (
@@ -69,13 +118,13 @@ const OtpScreen = ({ navigation,route }) => {
                         keyboardAppearance={'default'}
                     />
                     {errors &&
-                        <Text style={{ fontSize: responsiveFontSize(1.5), color: 'red', marginBottom: 20,marginTop:-25,alignSelf:'center' }}>{errorText}</Text>
+                        <Text style={{ fontSize: responsiveFontSize(1.5), color: 'red', marginBottom: 20, marginTop: -25, alignSelf: 'center' }}>{errorText}</Text>
                     }
                 </View>
 
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                     <Text style={{ color: '#808080', fontFamily: 'Poppins-Regular', fontSize: responsiveFontSize(2) }}>Didn’t received OTP?</Text>
-                    <TouchableOpacity onPress={() => {null}}>
+                    <TouchableOpacity onPress={() => { resendOtp() }}>
                         <Text style={{ color: '#92D6EC', fontFamily: 'Poppins-SemiBold', fontSize: responsiveFontSize(2) }}>Resend OTP</Text>
                     </TouchableOpacity>
                 </View>

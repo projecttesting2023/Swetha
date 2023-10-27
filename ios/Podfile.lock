@@ -66,6 +66,10 @@ PODS:
     - hermes-engine/Pre-built (= 0.72.4)
   - hermes-engine/Pre-built (0.72.4)
   - libevent (2.1.12)
+  - lottie-ios (4.3.3)
+  - lottie-react-native (6.3.1):
+    - lottie-ios (~> 4.3.0)
+    - React-Core
   - nanopb (2.30909.0):
     - nanopb/decode (= 2.30909.0)
     - nanopb/encode (= 2.30909.0)
@@ -379,6 +383,8 @@ PODS:
     - React-Core
   - react-native-document-picker (9.0.1):
     - React-Core
+  - react-native-html-to-pdf (0.12.0):
+    - React-Core
   - react-native-netinfo (9.4.1):
     - React-Core
   - react-native-orientation-locker (1.5.0):
@@ -388,6 +394,8 @@ PODS:
   - react-native-razorpay (2.3.0):
     - razorpay-pod
     - React
+  - react-native-render-html (6.3.4):
+    - React-Core
   - react-native-safe-area-context (4.7.2):
     - React-Core
   - React-NativeModulesApple (0.72.4):
@@ -569,6 +577,7 @@ DEPENDENCIES:
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
   - hermes-engine (from `../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec`)
   - libevent (~> 2.1.12)
+  - lottie-react-native (from `../node_modules/lottie-react-native`)
   - RCT-Folly (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
   - RCTRequired (from `../node_modules/react-native/Libraries/RCTRequired`)
   - RCTTypeSafety (from `../node_modules/react-native/Libraries/TypeSafety`)
@@ -588,10 +597,12 @@ DEPENDENCIES:
   - "react-native-blur (from `../node_modules/@react-native-community/blur`)"
   - react-native-date-picker (from `../node_modules/react-native-date-picker`)
   - react-native-document-picker (from `../node_modules/react-native-document-picker`)
+  - react-native-html-to-pdf (from `../node_modules/react-native-html-to-pdf`)
   - "react-native-netinfo (from `../node_modules/@react-native-community/netinfo`)"
   - react-native-orientation-locker (from `../node_modules/react-native-orientation-locker`)
   - react-native-pager-view (from `../node_modules/react-native-pager-view`)
   - react-native-razorpay (from `../node_modules/react-native-razorpay`)
+  - react-native-render-html (from `../node_modules/react-native-render-html`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - React-NativeModulesApple (from `../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios`)
   - React-perflogger (from `../node_modules/react-native/ReactCommon/reactperflogger`)
@@ -637,6 +648,7 @@ SPEC REPOS:
     - GoogleDataTransport
     - GoogleUtilities
     - libevent
+    - lottie-ios
     - nanopb
     - PromisesObjC
     - razorpay-pod
@@ -658,6 +670,8 @@ EXTERNAL SOURCES:
   hermes-engine:
     :podspec: "../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec"
     :tag: hermes-2023-08-07-RNv0.72.4-813b2def12bc9df02654b3e3653ae4a68d0572e0
+  lottie-react-native:
+    :path: "../node_modules/lottie-react-native"
   RCT-Folly:
     :podspec: "../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec"
   RCTRequired:
@@ -694,6 +708,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-date-picker"
   react-native-document-picker:
     :path: "../node_modules/react-native-document-picker"
+  react-native-html-to-pdf:
+    :path: "../node_modules/react-native-html-to-pdf"
   react-native-netinfo:
     :path: "../node_modules/@react-native-community/netinfo"
   react-native-orientation-locker:
@@ -702,6 +718,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-pager-view"
   react-native-razorpay:
     :path: "../node_modules/react-native-razorpay"
+  react-native-render-html:
+    :path: "../node_modules/react-native-render-html"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
   React-NativeModulesApple:
@@ -784,6 +802,8 @@ SPEC CHECKSUMS:
   GoogleUtilities: 13e2c67ede716b8741c7989e26893d151b2b2084
   hermes-engine: 81191603c4eaa01f5e4ae5737a9efcf64756c7b2
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
+  lottie-ios: 25e7b2675dad5c3ddad369ac9baab03560c5bfdd
+  lottie-react-native: c9f1db4f4124dcce9f8159e65d8dc6e8bcb11fb4
   nanopb: b552cce312b6c8484180ef47159bc0f65a1f0431
   PromisesObjC: c50d2056b5253dadbd6c2bea79b0674bd5a52fa4
   razorpay-pod: df3aa440969489d242c40ec606db9a0c7095743f
@@ -805,10 +825,12 @@ SPEC CHECKSUMS:
   react-native-blur: cfdad7b3c01d725ab62a8a729f42ea463998afa2
   react-native-date-picker: 8847cb359cf259ddae5ed165217e15573a654519
   react-native-document-picker: 2b8f18667caee73a96708a82b284a4f40b30a156
+  react-native-html-to-pdf: 4c5c6e26819fe202971061594058877aa9b25265
   react-native-netinfo: fefd4e98d75cbdd6e85fc530f7111a8afdf2b0c5
   react-native-orientation-locker: 851f6510d8046ea2f14aa169b1e01fcd309a94ba
   react-native-pager-view: d211379f61895b6349bd7e571b44a26d005c2975
   react-native-razorpay: 0272dd684bc9148828c54a72e05059e3e2e8b813
+  react-native-render-html: 984dfe2294163d04bf5fe25d7c9f122e60e05ebe
   react-native-safe-area-context: 7aa8e6d9d0f3100a820efb1a98af68aa747f9284
   React-NativeModulesApple: 524e0916a84da8ed2598abc5d3c818e075988fe4
   React-perflogger: 496a1a3dc6737f964107cb3ddae7f9e265ddda58
@@ -842,6 +864,6 @@ SPEC CHECKSUMS:
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
   Yoga: 3efc43e0d48686ce2e8c60f99d4e6bd349aff981
 
-PODFILE CHECKSUM: f7c2f12d02becffe0af3ee58585d0c6fb54f248a
+PODFILE CHECKSUM: 4c7a22d08a7636fdc3d16f284ddb3ae21d4a7cc6
 
 COCOAPODS: 1.12.1

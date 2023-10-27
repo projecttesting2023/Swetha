@@ -19,6 +19,7 @@ import TabNavigator from './TabNavigator';
 import HolidaysScreen from '../screens/HolidaysScreen';
 import MyDeliveryScreen from '../screens/MyDeliveryScreen';
 import OfferScreen from '../screens/OfferScreen';
+import PrivacyPolicy from '../screens/PrivacyPolicy';
 
 const Drawer = createDrawerNavigator();
 
@@ -122,6 +123,15 @@ const AuthStack = () => {
       <Drawer.Screen
         name="Terms & Conditions"
         component={TermsScreen}
+        options={{
+          drawerIcon: ({color}) => (
+            <Ionicons name="document-text" size={22} color={color} />
+          ),
+        }}
+      />
+      <Drawer.Screen
+        name="Privacy & Policy"
+        component={PrivacyPolicy}
         options={{
           drawerIcon: ({color}) => (
             <Ionicons name="document-text" size={22} color={color} />

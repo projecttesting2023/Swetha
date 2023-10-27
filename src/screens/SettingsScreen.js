@@ -1,11 +1,12 @@
 import React, { useState } from 'react'
-import { View, Text, Button, Platform } from 'react-native'
+import { View, Text, Button, Platform,Alert } from 'react-native'
 import { RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET } from '@env'
 import RazorpayCheckout from 'react-native-razorpay';
 import Toast from 'react-native-toast-message';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Orientation from 'react-native-orientation-locker';
 import DatePicker from 'react-native-modern-datepicker';
+import { RNHTMLtoPDF } from 'react-native-html-to-pdf';
 
 const SettingsScreen = () => {
   let razorpayKeyId = RAZORPAY_KEY_ID;
@@ -13,6 +14,16 @@ const SettingsScreen = () => {
 
   const [fullScreen, setFullScreen] = useState(false);
   const [selectedDate, setSelectedDate] = useState('');
+  const [html, setHtml] = useState(`
+  <html>
+      <head>
+          <title>Some HTML in here</title>
+      </head>
+      <body>
+          <h1>Look ma! HTML!</h1>
+      </body>
+  </html>
+  `);
 
   const FullScreen = () => {
     if (fullScreen) {
@@ -60,6 +71,23 @@ const SettingsScreen = () => {
     });
   }
 
+  const convertHtmlToPdf = async () => {
+    RNHTMLtoPDF.initialize();
+
+    const options = {
+      html,
+      fileName: `invoice_1.pdf`,
+      directory: 'Invoices',
+    };
+
+    try {
+      const file = await RNHTMLtoPDF.convert(options);
+      Alert.alert('Success', `PDF saved to ${file.filePath}`);
+    } catch (error) {
+      Alert.alert('Error', error.message);
+    }
+  };
+
   return (
     <SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
       <Text>Settings Screen</Text>
@@ -74,6 +102,10 @@ const SettingsScreen = () => {
       <Button
         title='Orientation'
         onPress={FullScreen}
+      />
+      <Button
+        title='Generate PDF'
+        onPress={convertHtmlToPdf}
       />
       <Text>{selectedDate}</Text>
       <DatePicker

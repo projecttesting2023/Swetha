@@ -14,8 +14,11 @@ import messaging from '@react-native-firebase/messaging';
 function App() {
   const getFCMToken = async () => {
     try {
+      if(Platform.OS == 'android'){
+        await messaging().registerDeviceForRemoteMessages();
+      }
       const token = await messaging().getToken();
-      console.log(token);
+      //console.log(token);
     } catch (e) {
       console.log(e);
     }

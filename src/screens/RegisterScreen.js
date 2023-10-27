@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { SafeAreaView, View, Text, TouchableOpacity, StyleSheet, TextInput } from 'react-native';
 import * as yup from 'yup';
 import { Formik } from 'formik'
@@ -7,6 +7,9 @@ import Logo from '../assets/images/misc/logo.svg';
 import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions';
 import LinearGradient from 'react-native-linear-gradient';
 import CustomButton from '../components/CustomButton';
+import { useDispatch, useSelector } from 'react-redux';
+import { getPhoneVerify } from '../store/auth/phoneVerifySlice';
+import Loader from '../utils/Loader';
 
 const schema = yup.object().shape({
   number: yup
@@ -19,16 +22,45 @@ const schema = yup.object().shape({
 });
 
 const RegisterScreen = ({ navigation }) => {
+  const dispatch = useDispatch();
+  const { data: phoneVerify, status } = useSelector(state => state.phoneVerify)
   const [number, onChangeNumber] = React.useState('');
   const [referral, setReferral] = React.useState('');
-
+  const [isLoading, setIsLoading] = useState(false)
 
   const handleSubmit = (values) => {
-    //navigation.navigate('Otp')
+    setIsLoading(true)
     console.log(values)
     if (values.number) {
-      navigation.navigate('Otp', { phoneno: values.number })
+      const option = {
+          "phone": values.number,
+          "refcode": values.referral,
+          "flage" :'register'
+        }
+      dispatch(getPhoneVerify(option))
     }
+  }
+
+  useEffect(() => {
+    //console.log(status, 'phoneVerifystatus')
+    if (status == 'success') {
+      console.log(phoneVerify,'data from register api')
+      setIsLoading(false)
+      navigation.push('Otp', { phoneno: phoneVerify.phone,page:'register' })
+    } else if (status == 'loading') {
+      setIsLoading(true)
+    } else if(status == 'error'){
+      setIsLoading(false)
+      //console.log(phoneVerify,'data from register api')
+      alert('Something went wrong')
+    }
+
+  }, [status])
+
+  if (isLoading) {
+    return (
+      <Loader />
+    )
   }
 
   return (
@@ -58,6 +90,7 @@ const RegisterScreen = ({ navigation }) => {
                 onBlur={handleBlur('number')}
                 placeholder="Enter 10 digit mobile no."
                 keyboardType="numeric"
+                placeholderTextColor="#808080"
               //letterSpacing={1}
               />
             </View>
@@ -74,6 +107,7 @@ const RegisterScreen = ({ navigation }) => {
                 onBlur={handleBlur('referral')}
                 placeholder="Enter referral code"
                 keyboardType="default"
+                placeholderTextColor="#808080"
               //letterSpacing={1}
               />
             </View>
@@ -153,7 +187,8 @@ const styles = StyleSheet.create({
   },
   input: {
     fontSize: responsiveFontSize(2),
-    width: responsiveWidth(70)
+    width: responsiveWidth(70),
+    color:'#808080'
   }
 
 });

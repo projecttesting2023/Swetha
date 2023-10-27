@@ -13,12 +13,12 @@ import {
   Linking
 } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-
+import axios from "axios";
 import BannerSlider from '../components/BannerSlider';
 import { windowWidth } from '../utils/Dimensions';
 
 import { AuthContext } from '../context/AuthContext';
-import { WHATSAPP_LINK } from '@env'
+import { WHATSAPP_LINK,API_URL } from '@env'
 
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -29,6 +29,9 @@ import CustomHeader from '../components/CustomHeader';
 import Carousel from 'react-native-banner-carousel';
 import data from '../model/data'
 import { getCategory } from '../store/categorySlice';
+import AnimatedLoader from "react-native-animated-loader";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getBanner } from '../store/bannerSlice';
 
 const BannerWidth = Dimensions.get('window').width;
 const ITEM_WIDTH = Math.round(BannerWidth * 0.7)
@@ -39,57 +42,165 @@ export default function HomeScreen({ navigation }) {
 
   const dispatch = useDispatch();
   const { data: category, categorystatus } = useSelector(state => state.category)
+  const { data: banner, bannerstatus } = useSelector(state => state.banner)
   const { userInfo } = useContext(AuthContext)
   const [selectedTab, setSelectedTab] = useState(0);
   const [categoryData, setCategoryData] = useState([]);
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(true);
+  const [userToken, setUserToken] = useState(null);
+  const [bannerData, setBannerData] = useState([])
+  const [recomended, setRecomended] = useState([])
 
   useEffect(() => {
-    dispatch(getCategory())
+    getCategory()
+    getBanner()
   }, [])
 
-  useEffect(() => {
-    console.log(categorystatus, 'categorystatus')
-    if (categorystatus == 'success') {
-      setCategoryData(category)
-      setIsLoading(false)
-    } else if (categorystatus == 'loading') {
-      setIsLoading(true)
-    }
+  const getCategory = () => {
+    AsyncStorage.getItem('userToken', (err, usertoken) => {
+      console.log(usertoken, 'user token')
+      axios.get(`${API_URL}/public/api/user/categories`, {
+        headers: {
+          "Authorization": 'Bearer ' + usertoken,
+          "Content-Type": 'application/json'
+        },
+      })
+        .then(res => {
+          console.log(res.data.categorie, 'all category')
+          let obj = res.data.categorie;
+          //console.log(obj[Object.keys(obj)[0]])
+          let first_element = obj[Object.keys(obj)[0]];
+          //console.log(first_element.id)
+          getProduct(first_element.id)
+          setCategoryData(res.data.categorie)
+          setIsLoading(false);
+        })
+        .catch(e => {
+          console.log(`Category error ${e}`)
+        });
 
-  }, [categorystatus])
-
-  if (isLoading) {
-    return (
-      <Loader />
-    )
+    });
   }
 
+  const getBanner = () => {
+    AsyncStorage.getItem('userToken', (err, usertoken) => {
+      axios.get(`${API_URL}/public/api/user/banner`, {
+        headers: {
+          "Authorization": 'Bearer ' + usertoken,
+          "Content-Type": 'application/json'
+        },
+      })
+        .then(res => {
+          //console.log(res.data.banner, 'all banner')
+          setBannerData(res.data.banner)
+          setIsLoading(false);
+        })
+        .catch(e => {
+          console.log(`Banner error ${e}`)
+        });
+
+    });
+  }
+
+  const getProduct = (id) => {
+    const option = {
+      "catagori_id": id
+    }
+    AsyncStorage.getItem('userToken', (err, usertoken) => {
+      axios.post(`${API_URL}/public/api/user/catagorybyproduct`,
+        option,
+        {
+          headers: {
+            "Authorization": 'Bearer ' + usertoken,
+            "Content-Type": 'application/json'
+          },
+        })
+        .then(res => {
+          console.log(res.data.product, 'category wise product')
+          setRecomended(res.data.product)
+          setIsLoading(false);
+        })
+        .catch(e => {
+          console.log(`Banner error ${e}`)
+        });
+
+    });
+  }
+
+  // useEffect(() => {
+  //   console.log(categorystatus, 'categorystatus')
+  //   if (categorystatus == 'success') {
+  //     setCategoryData(category)
+  //     setIsLoading(false)
+  //   } else if (categorystatus == 'loading') {
+  //     setIsLoading(true)
+  //   }
+
+  // }, [categorystatus])
+
+  // useEffect(() => {
+  //   console.log(bannerstatus, 'bannerstatus')
+  //   console.log(banner, 'bbbbbb')
+  //   if (bannerstatus == 'success') {
+  //     setBannerData(banner)
+  //     setIsLoading(false)
+  //   } else if (bannerstatus == 'loading') {
+  //     setIsLoading(true)
+  //   }
+
+  // }, [bannerstatus])
+
+  // if (isLoading) {
+  //   return (
+  //     <Loader />
+  //   )
+  // }
+
   const CarouselCardItem = (item, index) => {
-    //console.log(item.imgUrl,'item from banner data')
+    // console.log(item, 'banner itemmm')
     return (
       <View style={styles.bannaerContainer}>
         <Image
-          source={{ uri: item?.imgUrl }}
+          source={{ uri: `${API_URL}/public/${item?.img}` }}
           style={styles.bannerBg}
         />
         <View style={styles.textWrap}>
           {item?.title && <Text style={styles.bannerText}>{item?.title}</Text>}
-          {item?.body && <Text style={styles.bannerSubText} numberOfLines={4}>{item?.body}</Text>}
+          {item?.description && <Text style={styles.bannerSubText} numberOfLines={4}>{item?.description}</Text>}
         </View>
       </View>
     )
   }
 
+  const categorywiseProduct = (index, id) => {
+    console.log(index, id)
+    setSelectedTab(index)
+    getProduct(id)
+  }
+
   const renderCategory = (item, index) => {
-    //console.log(item.index)
     return (
-      <TouchableWithoutFeedback onPress={() => setSelectedTab(item.index)}>
+      <TouchableWithoutFeedback onPress={() => categorywiseProduct(item.index, item.item.id)}>
         <View style={styles.singleCategoryView}>
           <View style={[styles.categoryImageView, { backgroundColor: selectedTab == item.index ? '#00B2EB' : '#F1F1F1', }]}>
-            <Image source={categoryImg} style={styles.image} />
+            <Image source={{ uri: `${API_URL}/public/${item?.item.img}` }} style={styles.image} />
           </View>
-          <Text style={styles.imageText}>Milk</Text>
+          <Text style={styles.imageText}>{item.item.name}</Text>
+        </View>
+      </TouchableWithoutFeedback>
+    )
+  }
+
+  const renderRecomended = (item, index) => {
+    return (
+      <TouchableWithoutFeedback onPress={() => navigation.navigate('ProductDetailsScreen', { product_id: item.item.id })}>
+        <View style={styles.singleRecomendedView}>
+          <View style={[styles.recomendedImageView]}>
+            <Image source={{ uri: `${API_URL}/public/${item?.item.thumbnail_img}` }} style={styles.recomendedimage} />
+            <Text style={styles.recomendedText} numberOfLines={1}>{item.item.name}</Text>
+            <Text style={styles.recomendedText2}>{item.item.volume}</Text>
+            <Text style={styles.recomendedText3}>₹{item.item.ammount}</Text>
+          </View>
         </View>
       </TouchableWithoutFeedback>
     )
@@ -100,18 +211,20 @@ export default function HomeScreen({ navigation }) {
       <CustomHeader commingFrom={'Home'} onPress={() => navigation.navigate('Notification')} onPressProfile={() => navigation.navigate('Profile')} />
       <ScrollView style={styles.wrapper} showsVerticalScrollIndicator={false}>
         <View style={{ marginBottom: responsiveHeight(2) }}>
-          {/* <Carousel
+          <Carousel
             autoplay
             autoplayTimeout={5000}
             loop
             index={0}
             pageSize={BannerWidth}
+            showsPageIndicator={true}
             activePageIndicatorStyle={{ backgroundColor: '#00B2EB' }}
           >
-            {data.map((data, index) =>
-              CarouselCardItem(data, index)
+            {bannerData.map((datab, index) =>
+              CarouselCardItem(datab, index)
+
             )}
-          </Carousel> */}
+          </Carousel>
         </View>
         <Text style={styles.categoryHeader}>Popular Categories</Text>
         <View style={styles.categoryContainer}>
@@ -136,24 +249,16 @@ export default function HomeScreen({ navigation }) {
           </TouchableOpacity>
         </View>
         <View style={styles.recomendedContainer}>
-          <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
-            <View style={styles.singleRecomendedView}>
-              <View style={[styles.recomendedImageView]}>
-                <Image source={milkImg} style={styles.recomendedimage} />
-                <Text style={styles.recomendedText} numberOfLines={1}>A2 Buffalo Milk Pouch</Text>
-                <Text style={styles.recomendedText2}>500 ML POUCH</Text>
-                <Text style={styles.recomendedText3}>₹44.00</Text>
-              </View>
-            </View>
-            <View style={styles.singleRecomendedView}>
-              <View style={[styles.recomendedImageView]}>
-                <Image source={milk2Img} style={styles.recomendedimage} />
-                <Text style={styles.recomendedText} numberOfLines={1}>A2 Buffalo Milk Double Toned</Text>
-                <Text style={styles.recomendedText2}>500 ML POUCH</Text>
-                <Text style={styles.recomendedText3}>₹36.00</Text>
-              </View>
-            </View>
-          </ScrollView>
+          <FlatList
+            data={recomended}
+            renderItem={renderRecomended}
+            keyExtractor={(item, index) => index}
+            horizontal={false}
+            showsVerticalScrollIndicator={false}
+            removeClippedSubviews={true}
+            initialNumToRender={5}
+            numColumns={2}
+          />
         </View>
 
         <View style={{ marginTop: responsiveHeight(2) }}>
@@ -188,12 +293,20 @@ export default function HomeScreen({ navigation }) {
         <View style={{ marginTop: responsiveHeight(2), paddingBottom: responsiveFontSize(3), alignSelf: 'center' }}>
           <Text style={styles.bottomText}>Click to watch <Text style={{ color: '#2D81E3' }}>YouTube</Text> Tutorial</Text>
         </View>
+
       </ScrollView>
       <TouchableOpacity onPress={() => Linking.openURL(WHATSAPP_LINK)}>
         <View style={styles.floatingView}>
           <Image source={whatsappImg} style={styles.floatingImg} />
         </View>
       </TouchableOpacity>
+      <AnimatedLoader
+        visible={isLoading}
+        overlayColor="rgba(255, 255, 255, 0.75)"
+        animationStyle={styles.lottie}
+        source={require("../../src/assets/loader/loader.json")}
+        speed={1}
+      />
     </SafeAreaView >
   );
 }
@@ -363,7 +476,7 @@ const styles = StyleSheet.create({
 
   bannerSubText: {
     fontSize: 14,
-    color: '#FFF',
+    color: '#000',
     fontWeight: '300',
     fontFamily: 'Poppins-Regular',
     position: 'relative',
@@ -402,6 +515,10 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-Regular',
     fontWeight: '600',
 
-  }
+  },
+  lottie: {
+    width: responsiveWidth(40),
+    height: responsiveHeight(60)
+  },
 
 });

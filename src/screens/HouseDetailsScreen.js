@@ -43,13 +43,24 @@ const HouseDetailsScreen = ({ navigation,route  }) => {
     const handleSubmit = (values) => {
         //console.log(Validations.verifyRequired(houseNo, 'Please enter House no'))
         //navigation.navigate('ProfileInformation')
-        console.log(values)
+        //console.log(values)
         if(values.houseNo && values.streetName){
             if(!value){
                 setError(true)
             }else{
                 let address = `${values.houseNo},${value},${values.streetName}`
-                navigation.navigate('ProfileInformation',{phoneno:route?.params?.phoneno, address: address})
+                const data = {
+                    usertoken: route?.params?.usertoken,
+                    phoneno:route?.params?.phoneno,
+                    houseno:values.houseNo,
+                    housename:houseName,
+                    floorno: value,
+                    streetname: values.streetName,
+                    landmark: landmark,
+                    address: address,
+
+                }
+                navigation.navigate('ProfileInformation',data)
             }
         }
     }

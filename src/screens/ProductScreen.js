@@ -12,7 +12,9 @@ import {
     Dimensions,
     Modal
 } from 'react-native';
+import axios from "axios";
 import Entypo from 'react-native-vector-icons/Entypo';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { BlurView } from "@react-native-community/blur";
 import { AuthContext } from '../context/AuthContext';
 import { getProducts } from '../store/productSlice';
@@ -25,12 +27,12 @@ import CustomHeader from '../components/CustomHeader';
 import DatePicker from 'react-native-date-picker'
 import CustomButton from '../components/CustomButton';
 import moment from "moment"
-
+import Toast from 'react-native-toast-message';
 const BannerWidth = Dimensions.get('window').width;
 const ITEM_WIDTH = Math.round(BannerWidth * 0.7)
 const { height, width } = Dimensions.get('screen')
 
-export default function ProductScreen({ navigation,route  }) {
+export default function ProductScreen({ navigation, route }) {
 
     const dispatch = useDispatch();
     const { data: products, status } = useSelector(state => state.products)
@@ -59,48 +61,101 @@ export default function ProductScreen({ navigation,route  }) {
     const [thursdayQty, setThursdayQty] = useState(1)
     const [fridayQty, setFridayQty] = useState(1)
     const [satardayQty, setSatardayQty] = useState(1)
+    
+    const [currentProductId, setCurrentProductId] = useState(0)
 
     const fetchProducts = () => {
         dispatch(getProducts())
     }
     const fetchCategory = () => {
-        dispatch(getCategory())
+        // dispatch(getCategory())
+        getCategory()
     }
 
     useEffect(() => {
         fetchCategory();
-        fetchProducts();
+        // fetchProducts();
 
     }, [])
 
-    useEffect(() => {
-        //console.log(status,'product status')
-        if (status == 'success') {
-            setProductsData(products)
-            setIsLoading(false)
-        } else if (status == 'loading') {
-            setIsLoading(true)
+    // useEffect(() => {
+    //     //console.log(status,'product status')
+    //     if (status == 'success') {
+    //         setProductsData(products)
+    //         setIsLoading(false)
+    //     } else if (status == 'loading') {
+    //         setIsLoading(true)
+    //     }
+
+    // }, [status])
+
+    // useEffect(() => {
+    //     //console.log(categorystatus,'category status')
+    //     if (categorystatus == 'success') {
+    //         setCategoryData(category)
+    //         setIsLoading(false)
+    //     } else if (categorystatus == 'loading') {
+    //         setIsLoading(true)
+    //     }
+
+    // }, [categorystatus])
+
+    const getCategory = () => {
+        AsyncStorage.getItem('userToken', (err, usertoken) => {
+            console.log(usertoken, 'user token')
+            axios.get(`http://162.215.253.89/PCP2023/public/api/user/categories`, {
+                headers: {
+                    "Authorization": 'Bearer ' + usertoken,
+                    "Content-Type": 'application/json'
+                },
+            })
+                .then(res => {
+                    //console.log(res.data.categorie, 'all category')
+                    setCategoryData(res.data.categorie)
+                    let obj = res.data.categorie;
+                    //console.log(obj[Object.keys(obj)[0]])
+                    let first_element = obj[Object.keys(obj)[0]];
+                    //console.log(first_element.id)
+                    getProduct(first_element.id)
+                    setIsLoading(false);
+                })
+                .catch(e => {
+                    console.log(`Category error ${e}`)
+                });
+
+        });
+    }
+    const getProduct = (id) => {
+        const option = {
+            "catagori_id": id
         }
+        AsyncStorage.getItem('userToken', (err, usertoken) => {
+            axios.post(`http://162.215.253.89/PCP2023/public/api/user/catagorybyproduct`,
+                option,
+                {
+                    headers: {
+                        "Authorization": 'Bearer ' + usertoken,
+                        "Content-Type": 'application/json'
+                    },
+                })
+                .then(res => {
+                    console.log(res.data.product, 'category wise product')
+                    setProductsData(res.data.product)
+                    setIsLoading(false);
+                })
+                .catch(e => {
+                    console.log(`Banner error ${e}`)
+                });
 
-    }, [status])
-
-    useEffect(() => {
-        //console.log(categorystatus,'category status')
-        if (categorystatus == 'success') {
-            setCategoryData(category)
-            setIsLoading(false)
-        } else if (categorystatus == 'loading') {
-            setIsLoading(true)
-        }
-
-    }, [categorystatus])
+        });
+    }
 
     if (isLoading) {
         return (
             <Loader />
         )
     }
-   
+
 
     const startingDayqtyIncrement = () => {
         setStartingDayQty(startingDayQty + 1)
@@ -166,7 +221,7 @@ export default function ProductScreen({ navigation,route  }) {
     }
 
     const buyOnceModalOpen = (productId) => {
-        console.log(productId)
+        setCurrentProductId(productId)
         setModalVisible(true)
     }
     const subscribeModalOpen = (productId) => {
@@ -174,20 +229,69 @@ export default function ProductScreen({ navigation,route  }) {
         setModalVisible2(true)
     }
 
+    const placedByOnceOrder = () =>{
+        const option = {
+            "orders": [
+              {
+                "product_id": currentProductId,
+                "quantity": startingDayQty,
+                "date": moment(date).format("YYYY-MM-DD")
+              }
+            ]
+          }
+          console.log(option,'order plaayloaad')
+          AsyncStorage.getItem('userToken', (err, usertoken) => {
+            axios.post(`http://162.215.253.89/PCP2023/public/api/user/placeorder`,
+                option,
+                {
+                    headers: {
+                        "Authorization": 'Bearer ' + usertoken,
+                        "Content-Type": 'application/json'
+                    },
+                })
+                .then(res => {
+                    console.log(res.data, 'place order')
+                    if(res.data.st == '200'){
+                        setModalVisible(false)
+                        Toast.show({
+                            type: 'success',
+                            text2: res.data.orders.message,
+                            position: 'top',
+                            topOffset: Platform.OS == 'ios' ? 55 : 20
+                        });
+                    }else if(res.data.st == '400'){
+                        setModalVisible(false)
+                        Toast.show({
+                            type: 'error',
+                            text2: res.data.orders[0].error,
+                            position: 'top',
+                            topOffset: Platform.OS == 'ios' ? 55 : 20
+                        });
+                    }
+                   
+                })
+                .catch(e => {
+                    console.log(`place order error ${e}`)
+                });
+
+        });
+    }
+
     const renderProducts = ({ item }) => {
+        const save_amount = (item.ammount - item.discount_ammount);
         return (
-            <TouchableWithoutFeedback onPress={() => navigation.navigate('ProductDetailsScreen')}>
+            <TouchableWithoutFeedback onPress={() => navigation.navigate('ProductDetailsScreen', { product_id: item.id })}>
                 <View style={styles.productSection}>
                     <View style={styles.productCard}>
                         <View style={styles.offerView}>
                             <Image source={discountImg} style={styles.discountimg} />
-                            <Text style={styles.discountText}>₹11 DISCOUNT Bye Now @44 Only!</Text>
+                            <Text style={styles.discountText}>₹{save_amount}  DISCOUNT Bye Now @{item.discount_ammount} Only!</Text>
                         </View>
-                        <Image source={milkImg} style={styles.productimage} />
+                        <Image source={{ uri: `http://162.215.253.89/PCP2023/public/${item?.thumbnail_img}` }} style={styles.productimage} />
                         <View style={{ alignSelf: 'flex-start', marginLeft: 10 }}>
-                            <Text style={styles.productText} numberOfLines={1}>A2 Buffalo Milk Double Toned</Text>
-                            <Text style={styles.productText2}>500 ML POUCH</Text>
-                            <Text style={styles.productText3}>₹36.00</Text>
+                            <Text style={styles.productText} numberOfLines={1}>{item.name}</Text>
+                            <Text style={styles.productText2}>{item.volume}</Text>
+                            <Text style={styles.productText3}>₹{item.ammount}</Text>
                         </View>
                         <View style={styles.productButtonView}>
                             <TouchableWithoutFeedback onPress={() => buyOnceModalOpen(item.id)}>
@@ -209,13 +313,17 @@ export default function ProductScreen({ navigation,route  }) {
             </TouchableWithoutFeedback>
         )
     }
+    categorywiseProduct = (index, id) => {
+        setSelectedTab(index)
+        getProduct(id)
+    }
 
     const renderCategory = ({ item, index }) => {
         //console.log(item,'yyyyy')
         return (
-            <TouchableWithoutFeedback onPress={() => setSelectedTab(index)}>
+            <TouchableWithoutFeedback onPress={() => categorywiseProduct(index, item.id)}>
                 <View style={[styles.catView, { backgroundColor: selectedTab == index ? '#147999' : '#F8F8F8', }]}>
-                    <Text style={[styles.catText, { color: selectedTab == index ? '#FFF' : '#444' }]}>{item.category}</Text>
+                    <Text style={[styles.catText, { color: selectedTab == index ? '#FFF' : '#444' }]}>{item.name}</Text>
                 </View>
             </TouchableWithoutFeedback>
         )
@@ -282,7 +390,7 @@ export default function ProductScreen({ navigation,route  }) {
                                     <TouchableWithoutFeedback onPress={() => startingDayqtyDecrement()}>
                                         <Entypo name="minus" size={28} color="#000" />
                                     </TouchableWithoutFeedback>
-                                    <Text style={{ fontSize: responsiveFontSize(2.5), fontWeight: '800' }}>{startingDayQty}</Text>
+                                    <Text style={{ fontSize: responsiveFontSize(2.5), fontWeight: '800', color: '#000' }}>{startingDayQty}</Text>
                                     <TouchableWithoutFeedback onPress={() => startingDayqtyIncrement()}>
                                         <Entypo name="plus" size={28} color="#000" />
                                     </TouchableWithoutFeedback>
@@ -319,7 +427,7 @@ export default function ProductScreen({ navigation,route  }) {
                     </TouchableOpacity>
                     <View style={styles.buttonwrapper}>
                         <CustomButton label={"Place Order"}
-                            onPress={() => { null }}
+                            onPress={() => { placedByOnceOrder() }}
                         />
                     </View>
                 </View>
@@ -359,7 +467,7 @@ export default function ProductScreen({ navigation,route  }) {
                                     <TouchableWithoutFeedback onPress={() => qtyDecrement('sundayQty')}>
                                         <Entypo name="minus" size={28} color="#000" />
                                     </TouchableWithoutFeedback>
-                                    <Text style={{ fontSize: responsiveFontSize(2.5), fontWeight: '800' }}>{sundayQty}</Text>
+                                    <Text style={{ fontSize: responsiveFontSize(2.5), fontWeight: '800', color: '#000' }}>{sundayQty}</Text>
                                     <TouchableWithoutFeedback onPress={() => qtyIncrement('sundayQty')}>
                                         <Entypo name="plus" size={28} color="#000" />
                                     </TouchableWithoutFeedback>
@@ -371,7 +479,7 @@ export default function ProductScreen({ navigation,route  }) {
                                     <TouchableWithoutFeedback onPress={() => qtyDecrement('mondayQty')}>
                                         <Entypo name="minus" size={28} color="#000" />
                                     </TouchableWithoutFeedback>
-                                    <Text style={{ fontSize: responsiveFontSize(2.5), fontWeight: '800' }}>{mondayQty}</Text>
+                                    <Text style={{ fontSize: responsiveFontSize(2.5), fontWeight: '800', color: '#000' }}>{mondayQty}</Text>
                                     <TouchableWithoutFeedback onPress={() => qtyIncrement('mondayQty')}>
                                         <Entypo name="plus" size={28} color="#000" />
                                     </TouchableWithoutFeedback>
@@ -383,7 +491,7 @@ export default function ProductScreen({ navigation,route  }) {
                                     <TouchableWithoutFeedback onPress={() => qtyDecrement('tuesdayQty')}>
                                         <Entypo name="minus" size={28} color="#000" />
                                     </TouchableWithoutFeedback>
-                                    <Text style={{ fontSize: responsiveFontSize(2.5), fontWeight: '800' }}>{tuesdayQty}</Text>
+                                    <Text style={{ fontSize: responsiveFontSize(2.5), fontWeight: '800', color: '#000' }}>{tuesdayQty}</Text>
                                     <TouchableWithoutFeedback onPress={() => qtyIncrement('tuesdayQty')}>
                                         <Entypo name="plus" size={28} color="#000" />
                                     </TouchableWithoutFeedback>
@@ -395,7 +503,7 @@ export default function ProductScreen({ navigation,route  }) {
                                     <TouchableWithoutFeedback onPress={() => qtyDecrement('wednesdayQty')}>
                                         <Entypo name="minus" size={28} color="#000" />
                                     </TouchableWithoutFeedback>
-                                    <Text style={{ fontSize: responsiveFontSize(2.5), fontWeight: '800' }}>{wednesdayQty}</Text>
+                                    <Text style={{ fontSize: responsiveFontSize(2.5), fontWeight: '800', color: '#000' }}>{wednesdayQty}</Text>
                                     <TouchableWithoutFeedback onPress={() => qtyIncrement('wednesdayQty')}>
                                         <Entypo name="plus" size={28} color="#000" />
                                     </TouchableWithoutFeedback>
@@ -407,7 +515,7 @@ export default function ProductScreen({ navigation,route  }) {
                                     <TouchableWithoutFeedback onPress={() => qtyDecrement('thursdayQty')}>
                                         <Entypo name="minus" size={28} color="#000" />
                                     </TouchableWithoutFeedback>
-                                    <Text style={{ fontSize: responsiveFontSize(2.5), fontWeight: '800' }}>{thursdayQty}</Text>
+                                    <Text style={{ fontSize: responsiveFontSize(2.5), fontWeight: '800', color: '#000' }}>{thursdayQty}</Text>
                                     <TouchableWithoutFeedback onPress={() => qtyIncrement('thursdayQty')}>
                                         <Entypo name="plus" size={28} color="#000" />
                                     </TouchableWithoutFeedback>
@@ -419,7 +527,7 @@ export default function ProductScreen({ navigation,route  }) {
                                     <TouchableWithoutFeedback onPress={() => qtyDecrement('fridayQty')}>
                                         <Entypo name="minus" size={28} color="#000" />
                                     </TouchableWithoutFeedback>
-                                    <Text style={{ fontSize: responsiveFontSize(2.5), fontWeight: '800' }}>{fridayQty}</Text>
+                                    <Text style={{ fontSize: responsiveFontSize(2.5), fontWeight: '800', color: '#000', color: '#000' }}>{fridayQty}</Text>
                                     <TouchableWithoutFeedback onPress={() => qtyIncrement('fridayQty')}>
                                         <Entypo name="plus" size={28} color="#000" />
                                     </TouchableWithoutFeedback>
@@ -431,7 +539,7 @@ export default function ProductScreen({ navigation,route  }) {
                                     <TouchableWithoutFeedback onPress={() => qtyDecrement('satardayQty')}>
                                         <Entypo name="minus" size={28} color="#000" />
                                     </TouchableWithoutFeedback>
-                                    <Text style={{ fontSize: responsiveFontSize(2.5), fontWeight: '800' }}>{satardayQty}</Text>
+                                    <Text style={{ fontSize: responsiveFontSize(2.5), fontWeight: '800', color: '#000', color: '#000' }}>{satardayQty}</Text>
                                     <TouchableWithoutFeedback onPress={() => qtyIncrement('satardayQty')}>
                                         <Entypo name="plus" size={28} color="#000" />
                                     </TouchableWithoutFeedback>

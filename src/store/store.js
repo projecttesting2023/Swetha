@@ -9,12 +9,17 @@ import myDeliveriesSlice from './delivery/myDeliveriesSlice';
 import searchByDateSlice from './delivery/searchByDateSlice';
 import offerSlice from './offerSlice';
 import profileDetailsSlice from './profile/profileDetailsSlice';
+import phoneVerifySlice from './auth/phoneVerifySlice';
+import otpVerifySlice from './auth/otpVerifySlice';
+import profieDetailsSubmitSlice from './profile/profieDetailsSubmitSlice';
+import bannerSlice from './bannerSlice';
 
 const store = configureStore({
     reducer:{
         cart: cartSlice,
         products: productSlice,
         category: categorySlice,
+        banner: bannerSlice,
         holiday: holidaySlice,
         pastOrderHistory: pastOrderHistorySlice,
         upcomingOrderHistory: upcomingOrderHistorySlice,
@@ -22,6 +27,9 @@ const store = configureStore({
         searchByDate: searchByDateSlice,
         offer: offerSlice,
         profileDetails: profileDetailsSlice,
+        profileDetailsSubmit: profieDetailsSubmitSlice,
+        phoneVerify: phoneVerifySlice,
+        otpVerify: otpVerifySlice
 
     }
 })

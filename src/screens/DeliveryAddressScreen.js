@@ -1,4 +1,4 @@
-import React, { useContext, useState, useMemo } from 'react';
+import React, { useContext, useState, useMemo, useEffect } from 'react';
 import { SafeAreaView, View, Text, TouchableOpacity, TouchableWithoutFeedback, StyleSheet, TextInput, ScrollView } from 'react-native';
 
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -12,22 +12,40 @@ import RadioGroup from 'react-native-radio-buttons-group';
 import RNDateTimePicker from '@react-native-community/datetimepicker'
 import CustomHeader from '../components/CustomHeader';
 import moment from "moment"
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import Loader from '../utils/Loader';
 
 
 const DeliveryAddressScreen = ({ navigation }) => {
-   
 
-   
+    const [address, setAddress] = useState('')
+    const [isLoading, setIsLoading] = useState(true)
 
+    const fetchProfileDetails = () => {
+        AsyncStorage.getItem('userInfo', (err, userInfo) => {
+            let data = JSON.parse(userInfo)
+            setAddress(data.address)
+            setIsLoading(false)
+        });
+    }
+    useEffect(() => {
+        fetchProfileDetails()
+    }, [])
+
+
+    if (isLoading) {
+        return (
+            <Loader />
+        )
+    }
     return (
         <SafeAreaView style={styles.Container}>
             <CustomHeader commingFrom={'Delivery Address'} onPress={() => navigation.goBack()} title={'Delivery Address'} />
             <ScrollView style={{ paddingHorizontal: 20, marginBottom: responsiveHeight(3), marginTop: responsiveHeight(3) }}>
-               <View style={{padding:10,borderRadius:10,borderColor:'#147999',borderWidth:1}}>
-                <Text style={{color: '#444',fontFamily: "Poppins-Regular",fontSize: responsiveFontSize(2),fontWeight: '800',marginBottom:5}}>Saved Address</Text> 
-                <Text style={{color:'#444',fontFamily:'Poppins-Regular',fontSize: responsiveFontSize(1.8)}}>7,2,karnataka, 70008999</Text>
-               </View>
+                <View style={{ padding: 10, borderRadius: 10, borderColor: '#147999', borderWidth: 1 }}>
+                    <Text style={{ color: '#444', fontFamily: "Poppins-Regular", fontSize: responsiveFontSize(2), fontWeight: '800', marginBottom: 5 }}>Saved Address</Text>
+                    <Text style={{ color: '#444', fontFamily: 'Poppins-Regular', fontSize: responsiveFontSize(1.8) }}>{address}</Text>
+                </View>
             </ScrollView>
             <Text style={styles.bottomText}>To Change Your Address</Text>
             <View style={styles.buttonwrapper1}>
@@ -73,15 +91,15 @@ const styles = StyleSheet.create({
         padding: 10,
         marginBottom: 10
     },
-    bottomText:{
-        color:'#000',
-        fontFamily:'Poppins-Regular',
-        fontSize:responsiveFontSize(2),
-        textAlign:'center',
-        position:'absolute',
-        bottom:130,
-        right:50,
-        left:50
+    bottomText: {
+        color: '#000',
+        fontFamily: 'Poppins-Regular',
+        fontSize: responsiveFontSize(2),
+        textAlign: 'center',
+        position: 'absolute',
+        bottom: 130,
+        right: 50,
+        left: 50
     }
 
 });

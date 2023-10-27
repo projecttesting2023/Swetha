@@ -30,12 +30,12 @@ import data from '../model/data'
 import CustomButton from '../components/CustomButton';
 import InputField from '../components/InputField';
 import { BlurView } from '@react-native-community/blur';
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
 const BannerWidth = Dimensions.get('window').width;
 const ITEM_WIDTH = Math.round(BannerWidth * 0.7)
 const { height, width } = Dimensions.get('screen')
 
-export default function ProductDetailsScreen({ navigation }) {
+export default function ProductDetailsScreen({ navigation,route }) {
 
     const dispatch = useDispatch();
     const { data: products, status } = useSelector(state => state.products)
@@ -62,18 +62,41 @@ export default function ProductDetailsScreen({ navigation }) {
 
     const [startingDayQty, setStartingDayQty] = useState(1)
     const [succeedingDayQty, setSucceedingDayQty] = useState(1)
-
+    const [isLoading, setIsLoading] = useState(true)
+    const [productsData, setProductsData] = useState([])
 
     const fetchProducts = () => {
-        dispatch(getProducts())
+       
+        console.log(route?.params?.product_id,'product idddd')
+        const option = {
+            "id": route?.params?.product_id
+        }
+        AsyncStorage.getItem('userToken', (err, usertoken) => {
+            axios.post(`http://162.215.253.89/PCP2023/public/api/user/productsearch`,
+                option,
+                {
+                    headers: {
+                        "Authorization": 'Bearer ' + usertoken,
+                        "Content-Type": 'application/json'
+                    },
+                })
+                .then(res => {
+                    console.log(res.data.product, 'product details')
+                    setProductsData(res.data.product)
+                    setIsLoading(false);
+                })
+                .catch(e => {
+                    console.log(`Product Details error ${e}`)
+                });
 
+        });
     }
 
     useEffect(() => {
         fetchProducts();
     }, [])
 
-    if (status == 'loading') {
+    if (isLoading) {
         return (
             <Loader />
         )
@@ -160,14 +183,14 @@ export default function ProductDetailsScreen({ navigation }) {
             <ScrollView style={styles.wrapper}>
                 <View style={{ paddingBottom: responsiveHeight(3) }}>
                     <View style={styles.imageView}>
-                        <Image source={milkImg} style={styles.productimage} />
+                        <Image source={{ uri: `http://162.215.253.89/PCP2023/public/${productsData[0].thumbnail_img}` }} style={styles.productimage} />
                     </View>
                     <View style={{ alignSelf: 'flex-start', marginTop: responsiveHeight(2) }}>
-                        <Text style={styles.productText}>A2 Buffalo Milk Double Toned</Text>
-                        <Text style={styles.productText2}>500 ML POUCH</Text>
+                        <Text style={styles.productText}>{productsData[0].name}</Text>
+                        <Text style={styles.productText2}>{productsData[0].volume}</Text>
                         <View style={{ flexDirection: 'row', }}>
-                            <Text style={styles.productText3}>₹36.00</Text>
-                            <Text style={styles.productText4}>₹55.00</Text>
+                            <Text style={styles.productText3}>₹{productsData[0].discount_ammount}</Text>
+                            <Text style={styles.productText4}>₹{productsData[0].ammount}</Text>
                         </View>
                     </View>
                     <View style={styles.line} />
@@ -178,7 +201,7 @@ export default function ProductDetailsScreen({ navigation }) {
                         <Entypo name="plus" size={28} color="#000" />
                     </View> */}
                     <Text style={styles.descriptionText}>Description</Text>
-                    <Text style={styles.productText2}>Hygienically milked from buffaloes, the freshness and purity of the collected milk are retained in a sterilized packaging</Text>
+                    <Text style={styles.productText2}>{productsData[0].product_description.replace(/<\/?[^>]+(>|$)/g, "")}</Text>
                     <View style={styles.buttonwrapper2}>
                         <CustomButton label={"Place Repeating Order"}
                             comingFrom={''}
@@ -231,7 +254,7 @@ export default function ProductDetailsScreen({ navigation }) {
                                     <TouchableWithoutFeedback onPress={() => qtyDecrement('sundayQty')}>
                                         <Entypo name="minus" size={28} color="#000" />
                                     </TouchableWithoutFeedback>
-                                    <Text style={{ fontSize: responsiveFontSize(2.5), fontWeight: '800' }}>{sundayQty}</Text>
+                                    <Text style={{ fontSize: responsiveFontSize(2.5), fontWeight: '800',color:'#000' }}>{sundayQty}</Text>
                                     <TouchableWithoutFeedback onPress={() => qtyIncrement('sundayQty')}>
                                         <Entypo name="plus" size={28} color="#000" />
                                     </TouchableWithoutFeedback>
@@ -243,7 +266,7 @@ export default function ProductDetailsScreen({ navigation }) {
                                     <TouchableWithoutFeedback onPress={() => qtyDecrement('mondayQty')}>
                                         <Entypo name="minus" size={28} color="#000" />
                                     </TouchableWithoutFeedback>
-                                    <Text style={{ fontSize: responsiveFontSize(2.5), fontWeight: '800' }}>{mondayQty}</Text>
+                                    <Text style={{ fontSize: responsiveFontSize(2.5), fontWeight: '800',color:'#000' }}>{mondayQty}</Text>
                                     <TouchableWithoutFeedback onPress={() => qtyIncrement('mondayQty')}>
                                         <Entypo name="plus" size={28} color="#000" />
                                     </TouchableWithoutFeedback>
@@ -255,7 +278,7 @@ export default function ProductDetailsScreen({ navigation }) {
                                     <TouchableWithoutFeedback onPress={() => qtyDecrement('tuesdayQty')}>
                                         <Entypo name="minus" size={28} color="#000" />
                                     </TouchableWithoutFeedback>
-                                    <Text style={{ fontSize: responsiveFontSize(2.5), fontWeight: '800' }}>{tuesdayQty}</Text>
+                                    <Text style={{ fontSize: responsiveFontSize(2.5), fontWeight: '800',color:'#000' }}>{tuesdayQty}</Text>
                                     <TouchableWithoutFeedback onPress={() => qtyIncrement('tuesdayQty')}>
                                         <Entypo name="plus" size={28} color="#000" />
                                     </TouchableWithoutFeedback>
@@ -267,7 +290,7 @@ export default function ProductDetailsScreen({ navigation }) {
                                     <TouchableWithoutFeedback onPress={() => qtyDecrement('wednesdayQty')}>
                                         <Entypo name="minus" size={28} color="#000" />
                                     </TouchableWithoutFeedback>
-                                    <Text style={{ fontSize: responsiveFontSize(2.5), fontWeight: '800' }}>{wednesdayQty}</Text>
+                                    <Text style={{ fontSize: responsiveFontSize(2.5), fontWeight: '800',color:'#000' }}>{wednesdayQty}</Text>
                                     <TouchableWithoutFeedback onPress={() => qtyIncrement('wednesdayQty')}>
                                         <Entypo name="plus" size={28} color="#000" />
                                     </TouchableWithoutFeedback>
@@ -279,7 +302,7 @@ export default function ProductDetailsScreen({ navigation }) {
                                     <TouchableWithoutFeedback onPress={() => qtyDecrement('thursdayQty')}>
                                         <Entypo name="minus" size={28} color="#000" />
                                     </TouchableWithoutFeedback>
-                                    <Text style={{ fontSize: responsiveFontSize(2.5), fontWeight: '800' }}>{thursdayQty}</Text>
+                                    <Text style={{ fontSize: responsiveFontSize(2.5), fontWeight: '800',color:'#000' }}>{thursdayQty}</Text>
                                     <TouchableWithoutFeedback onPress={() => qtyIncrement('thursdayQty')}>
                                         <Entypo name="plus" size={28} color="#000" />
                                     </TouchableWithoutFeedback>
@@ -291,7 +314,7 @@ export default function ProductDetailsScreen({ navigation }) {
                                     <TouchableWithoutFeedback onPress={() => qtyDecrement('fridayQty')}>
                                         <Entypo name="minus" size={28} color="#000" />
                                     </TouchableWithoutFeedback>
-                                    <Text style={{ fontSize: responsiveFontSize(2.5), fontWeight: '800' }}>{fridayQty}</Text>
+                                    <Text style={{ fontSize: responsiveFontSize(2.5), fontWeight: '800',color:'#000' }}>{fridayQty}</Text>
                                     <TouchableWithoutFeedback onPress={() => qtyIncrement('fridayQty')}>
                                         <Entypo name="plus" size={28} color="#000" />
                                     </TouchableWithoutFeedback>
@@ -303,7 +326,7 @@ export default function ProductDetailsScreen({ navigation }) {
                                     <TouchableWithoutFeedback onPress={() => qtyDecrement('satardayQty')}>
                                         <Entypo name="minus" size={28} color="#000" />
                                     </TouchableWithoutFeedback>
-                                    <Text style={{ fontSize: responsiveFontSize(2.5), fontWeight: '800' }}>{satardayQty}</Text>
+                                    <Text style={{ fontSize: responsiveFontSize(2.5), fontWeight: '800',color:'#000' }}>{satardayQty}</Text>
                                     <TouchableWithoutFeedback onPress={() => qtyIncrement('satardayQty')}>
                                         <Entypo name="plus" size={28} color="#000" />
                                     </TouchableWithoutFeedback>
@@ -382,7 +405,7 @@ export default function ProductDetailsScreen({ navigation }) {
                                     <TouchableWithoutFeedback onPress={() => startingDayqtyDecrement()}>
                                         <Entypo name="minus" size={28} color="#000" />
                                     </TouchableWithoutFeedback>
-                                    <Text style={{ fontSize: responsiveFontSize(2.5), fontWeight: '800' }}>{startingDayQty}</Text>
+                                    <Text style={{ fontSize: responsiveFontSize(2.5), fontWeight: '800',color:'#000' }}>{startingDayQty}</Text>
                                     <TouchableWithoutFeedback onPress={() => startingDayqtyIncrement()}>
                                         <Entypo name="plus" size={28} color="#000" />
                                     </TouchableWithoutFeedback>
@@ -396,7 +419,7 @@ export default function ProductDetailsScreen({ navigation }) {
                                     <TouchableWithoutFeedback onPress={() => succeedingDayqtyDecrement()}>
                                         <Entypo name="minus" size={28} color="#000" />
                                     </TouchableWithoutFeedback>
-                                    <Text style={{ fontSize: responsiveFontSize(2.5), fontWeight: '800' }}>{succeedingDayQty}</Text>
+                                    <Text style={{ fontSize: responsiveFontSize(2.5), fontWeight: '800',color:'#000' }}>{succeedingDayQty}</Text>
                                     <TouchableWithoutFeedback onPress={() => succeedingDayqtyIncrement()}>
                                         <Entypo name="plus" size={28} color="#000" />
                                     </TouchableWithoutFeedback>

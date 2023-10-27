@@ -1,5 +1,5 @@
-import React, { useContext, useState } from 'react';
-import { SafeAreaView, View, Text, TouchableOpacity,TouchableWithoutFeedback, StyleSheet, TextInput, ScrollView } from 'react-native';
+import React, { useContext, useState, useEffect } from 'react';
+import { SafeAreaView, View, Text, TouchableOpacity, TouchableWithoutFeedback, StyleSheet, TextInput, ScrollView } from 'react-native';
 
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Logo from '../assets/images/misc/logo.svg';
@@ -10,15 +10,66 @@ import InputField from '../components/InputField';
 import { Dropdown } from 'react-native-element-dropdown';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { AuthContext } from '../context/AuthContext';
+import { useDispatch, useSelector } from 'react-redux';
+import {submitProfileDetails } from '../store/profile/profieDetailsSubmitSlice';
+import Loader from '../utils/Loader';
 
 
-const VerifyDetailsScreen = ({ navigation,route }) => {
+const VerifyDetailsScreen = ({ navigation, route }) => {
+    const dispatch = useDispatch();
+    const { data: profileDetails, status } = useSelector(state => state.profileDetailsSubmit)
+
     const [fullname, setFullname] = React.useState(route?.params?.fullname);
     const [email, setEmail] = React.useState(route?.params?.email);
     const [mobile, setMobile] = React.useState(route?.params?.phoneno);
     const [address, setAddress] = React.useState(route?.params?.address);
+    const [isLoading, setIsLoading] = useState(false)
 
     const { login, userToken } = useContext(AuthContext);
+
+    const verifyBeforeSubmit = () => {
+        const option = {
+            "usertoken": route?.params?.usertoken,
+            "hoseno": route?.params?.houseno,
+            "hoseno_name": route?.params?.housename,
+            "floorno": route?.params?.floorno,
+            "street": route?.params?.streetname,
+            "landmark": route?.params?.landmark,
+            "city": route?.params?.city,
+            "pin": route?.params?.pincode,
+            "area": route?.params?.area,
+            "residency_type": route?.params?.residencytype,
+            "name": fullname,
+            "email": email,
+            "phn": mobile,
+            "address": address
+        }
+        console.log(option,'option from verify before submit')
+        //login(route?.params?.usertoken)
+        dispatch(submitProfileDetails(option))
+    }
+
+    useEffect(() => {
+        console.log(status, 'Verifystatus')
+        if (status == 'success') {
+            //console.log(profileDetails, 'data from register api')
+            setIsLoading(false)
+            login(route?.params?.usertoken)
+        } else if (status == 'loading') {
+            setIsLoading(true)
+        } else if (status == 'error') {
+            setIsLoading(false) 
+            alert('Something went wrong')
+        }
+
+    }, [status])
+
+    if (isLoading) {
+        return (
+            <Loader />
+        )
+    }
+
     return (
         <LinearGradient colors={['#E0F8FF', 'rgba(255, 255, 255, 0.05)', 'rgba(217, 217, 217, 0.00)']} style={styles.Container}>
             <SafeAreaView>
@@ -63,7 +114,7 @@ const VerifyDetailsScreen = ({ navigation,route }) => {
                     </KeyboardAwareScrollView>
                     <View style={styles.buttonwrapper}>
                         <CustomButton label={"Confirm"}
-                            onPress={() => { login() }}
+                            onPress={() => { verifyBeforeSubmit() }}
                         />
                     </View>
                 </ScrollView>

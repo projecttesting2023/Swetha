@@ -20,6 +20,9 @@ const DeliveryInstruction = ({ navigation }) => {
         {
             id: '1', // acts as primary key, should be unique and non-empty string
             label: 'Ring Bell',
+            labelStyle:{
+                color:'#808080'
+            },
             value: 'ring_bell',
             borderColor: '#147999',
             color: '#147999',
@@ -28,6 +31,9 @@ const DeliveryInstruction = ({ navigation }) => {
         {
             id: '2',
             label: 'Deliver at door step',
+            labelStyle:{
+                color:'#808080'
+            },
             value: 'deliver_at_door_step',
             borderColor: '#147999',
             color: '#147999',
@@ -36,6 +42,9 @@ const DeliveryInstruction = ({ navigation }) => {
         {
             id: '3',
             label: 'Deliver at security',
+            labelStyle:{
+                color:'#808080'
+            },
             value: 'deliver_at_security',
             borderColor: '#147999',
             color: '#147999',
@@ -44,6 +53,9 @@ const DeliveryInstruction = ({ navigation }) => {
         {
             id: '4',
             label: 'Drop the packets in bag/basket',
+            labelStyle:{
+                color:'#808080'
+            },
             value: 'drop_the_packets_in_bag',
             borderColor: '#147999',
             color: '#147999',

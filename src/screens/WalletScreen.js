@@ -14,8 +14,9 @@ import {
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Feather from 'react-native-vector-icons/Feather';
-
-
+import Toast from 'react-native-toast-message';
+import { RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET } from '@env'
+import RazorpayCheckout from 'react-native-razorpay';
 import CustomSwitch from '../components/CustomSwitch';
 import ListItem from '../components/ListItem';
 import { AuthContext } from '../context/AuthContext';
@@ -30,6 +31,7 @@ import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-nat
 import CustomHeader from '../components/CustomHeader';
 import data from '../model/data'
 import CustomButton from '../components/CustomButton';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const BannerWidth = Dimensions.get('window').width;
 const ITEM_WIDTH = Math.round(BannerWidth * 0.7)
@@ -40,23 +42,119 @@ export default function WalletScreen({ navigation }) {
     const dispatch = useDispatch();
     const { data: products, status } = useSelector(state => state.products)
     const { userInfo } = useContext(AuthContext)
+    let razorpayKeyId = RAZORPAY_KEY_ID;
+    let razorpayKeySecret = RAZORPAY_KEY_SECRET;
 
     const [amount, setAmount] = React.useState('');
     const [promocode, setPromocode] = React.useState('');
+    const [walletAmount, setWalletAmount] = React.useState('0.00')
+    const [isLoading, setIsLoading] = useState(true)
 
-    const fetchProducts = () => {
-        dispatch(getProducts())
-
+    const fetchProfileDetails = () => {
+        AsyncStorage.getItem('userInfo', (err, userInfo) => {
+            let data = JSON.parse(userInfo)
+            // console.log(data)
+            setWalletAmount(data.walate)
+            setIsLoading(false)
+        });
     }
 
     useEffect(() => {
-        fetchProducts();
+        fetchProfileDetails();
     }, [])
 
     if (status == 'loading') {
         return (
             <Loader />
         )
+    }
+
+    const currency = 'INR';
+    const handlePayment = () => {
+        if (amount == '') {
+            Toast.show({
+                type: 'error',
+                text1: 'Hello',
+                text2: 'Please Enter the Amount',
+                position: 'top',
+                topOffset: Platform.OS == 'ios' ? 55 : 20
+            });
+        } else {
+            var options = {
+                description: 'This is the description we need',
+                image: 'https://i.imgur.com/3g7nmJC.jpg',
+                currency: 'INR',
+                key: razorpayKeyId,
+                amount: amount * 100,
+                name: 'Customer 1',
+                order_id: '',
+                prefill: {
+                    email: 'xyz@example.com',
+                    contact: '9191919191',
+                    name: 'Person Name'
+                },
+                theme: { color: '#1697C0' }
+            }
+            RazorpayCheckout.open(options).then((data) => {
+                // handle success
+                alert(`Success: ${data.razorpay_payment_id}`);
+            }).catch((error) => {
+                // handle failure
+                alert(`Error: ${error.code} | ${error.description}`);
+            });
+        }
+
+    }
+
+    const checkPromocode = () => {
+        if (promocode != '') {
+            const option = {
+                "offerscode": promocode,
+                "amount": amount
+            }
+            AsyncStorage.getItem('userToken', (err, usertoken) => {
+                axios.post(`http://162.215.253.89/PCP2023/public/api/user/checkpromocode`,
+                    option,
+                    {
+                        headers: {
+                            "Authorization": 'Bearer ' + usertoken,
+                            "Content-Type": 'application/json'
+                        },
+                    })
+                    .then(res => {
+                        console.log(res.data, 'promo codeeeee')
+                        if (res.data.st == "200") {
+                            Toast.show({
+                                type: 'success',
+                                text2: "Promo code is valid",
+                                position: 'top',
+                                topOffset: Platform.OS == 'ios' ? 55 : 20
+                            });
+                            
+                        } else {
+                            Toast.show({
+                                type: 'error',
+                                text2: "Promo code is invalid",
+                                position: 'top',
+                                topOffset: Platform.OS == 'ios' ? 55 : 20
+                            });
+                        }
+
+                        // setIsLoading(false);
+                    })
+                    .catch(e => {
+                        console.log(`Promo code error ${e}`)
+                    });
+
+            });
+        } else {
+            Toast.show({
+                type: 'info',
+                text2: "Please enter Promo code",
+                position: 'top',
+                topOffset: Platform.OS == 'ios' ? 55 : 20
+            });
+        }
     }
 
 
@@ -72,7 +170,7 @@ export default function WalletScreen({ navigation }) {
                             {/* <Text style={styles.balanceTextHeader2}>Tomorrow’s basket value</Text> */}
                         </View>
                         <View style={{ flexDirection: 'column', backgroundColor: '#1697C0', height: responsiveHeight(9), width: responsiveWidth(30), borderRadius: 10, justifyContent: 'center' }}>
-                            <Text style={styles.balanceTextValue}>₹0.00</Text>
+                            <Text style={styles.balanceTextValue}>₹{walletAmount}</Text>
                             {/* <Text style={styles.balanceTextValue2}>₹0.00</Text> */}
                         </View>
                     </View>
@@ -85,6 +183,7 @@ export default function WalletScreen({ navigation }) {
                                 value={amount}
                                 placeholder="Enter Amount"
                                 keyboardType="default"
+                                placeholderTextColor="#808080"
                             //letterSpacing={2}
                             />
                         </View>
@@ -106,7 +205,7 @@ export default function WalletScreen({ navigation }) {
                             </TouchableOpacity>
                         </View>
                         <Text style={styles.saveamountText}>To save time recharge more amount</Text>
-                       
+
                     </View>
                     <View style={styles.promocodeView}>
                         <Text style={styles.promocodeTextHeader}>Do you have a promocode?</Text>
@@ -117,13 +216,14 @@ export default function WalletScreen({ navigation }) {
                                 value={promocode}
                                 placeholder="Enter Promocode"
                                 keyboardType="default"
+                                placeholderTextColor="#808080"
                             //letterSpacing={2}
                             />
                         </View>
                         <View style={styles.buttonwrapper}>
                             <CustomButton label={"Apply"}
                                 comingFrom={'wallet'}
-                                onPress={null}
+                                onPress={() => checkPromocode()}
                             />
                         </View>
                     </View>
@@ -132,7 +232,7 @@ export default function WalletScreen({ navigation }) {
             <View style={styles.buttonwrapper2}>
                 <CustomButton label={"Choose Payment Mode"}
                     comingFrom={'wallet'}
-                    onPress={null}
+                    onPress={() => handlePayment()}
                 />
             </View>
         </SafeAreaView >
@@ -180,7 +280,7 @@ const styles = StyleSheet.create({
         marginBottom: 5,
         color: '#FFF',
         fontFamily: 'Poppins-Regular',
-        fontSize: responsiveFontSize(3),
+        fontSize: responsiveFontSize(2.5),
         fontWeight: '700'
     },
     balanceTextValue2: {
@@ -248,6 +348,7 @@ const styles = StyleSheet.create({
     },
     input: {
         fontSize: responsiveFontSize(2),
+        color: '#808080'
     },
     amountButtonView: {
         flexDirection: 'row',
@@ -264,12 +365,12 @@ const styles = StyleSheet.create({
         alignItems: 'center'
     },
     buttonwrapper: {
-       // marginTop: 1
+        // marginTop: 1
     },
     buttonwrapper2: {
-        position:'absolute',
+        position: 'absolute',
         alignSelf: 'center',
-        bottom:10
+        bottom: 10
 
     },
 
