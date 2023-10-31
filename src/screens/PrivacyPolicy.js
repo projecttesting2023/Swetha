@@ -15,7 +15,7 @@ import {
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Feather from 'react-native-vector-icons/Feather';
 import RenderHTML from "react-native-render-html";
-
+import { API_URL } from '@env'
 import CustomSwitch from '../components/CustomSwitch';
 import ListItem from '../components/ListItem';
 import { AuthContext } from '../context/AuthContext';
@@ -54,7 +54,7 @@ export default function PrivacyPolicy({ navigation }) {
 
     const fetchTerms = () => {
         AsyncStorage.getItem('userToken', (err, usertoken) => {
-            axios.get(`http://162.215.253.89/PCP2023/public/api/user/privacyandpolicy`,
+            axios.get(`${API_URL}/public/api/user/privacyandpolicy`,
                 {
                     headers: {
                         "Authorization": 'Bearer ' + usertoken,

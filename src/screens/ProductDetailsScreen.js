@@ -20,6 +20,7 @@ import { AuthContext } from '../context/AuthContext';
 import { getProducts } from '../store/productSlice'
 import moment from "moment"
 import axios from 'axios';
+import { API_URL } from '@env'
 import { useDispatch, useSelector } from 'react-redux';
 import { add } from '../store/cartSlice';
 import { allUserImg, categoryImg, chatImg, chatImgRed, discountImg, documentImg, milk2Img, milkImg, offerImg, requestImg, userPhoto } from '../utils/Images';
@@ -31,11 +32,12 @@ import CustomButton from '../components/CustomButton';
 import InputField from '../components/InputField';
 import { BlurView } from '@react-native-community/blur';
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import Toast from 'react-native-toast-message';
 const BannerWidth = Dimensions.get('window').width;
 const ITEM_WIDTH = Math.round(BannerWidth * 0.7)
 const { height, width } = Dimensions.get('screen')
 
-export default function ProductDetailsScreen({ navigation,route }) {
+export default function ProductDetailsScreen({ navigation, route }) {
 
     const dispatch = useDispatch();
     const { data: products, status } = useSelector(state => state.products)
@@ -64,15 +66,24 @@ export default function ProductDetailsScreen({ navigation,route }) {
     const [succeedingDayQty, setSucceedingDayQty] = useState(1)
     const [isLoading, setIsLoading] = useState(true)
     const [productsData, setProductsData] = useState([])
+    const [currentProductId, setCurrentProductId] = useState(0)
+
+    const currentDate = moment();
+
+    // Get the next day
+    const nextDay = currentDate.add(2, 'days');
+    
+    // Format the next day as a string (if needed)
+    const formattedNextDay = nextDay.format('YYYY-MM-DD');
 
     const fetchProducts = () => {
-       
-        console.log(route?.params?.product_id,'product idddd')
+
+        console.log(route?.params?.product_id, 'product idddd')
         const option = {
             "id": route?.params?.product_id
         }
         AsyncStorage.getItem('userToken', (err, usertoken) => {
-            axios.post(`http://162.215.253.89/PCP2023/public/api/user/productsearch`,
+            axios.post(`${API_URL}/public/api/user/productsearch`,
                 option,
                 {
                     headers: {
@@ -83,6 +94,7 @@ export default function ProductDetailsScreen({ navigation,route }) {
                 .then(res => {
                     console.log(res.data.product, 'product details')
                     setProductsData(res.data.product)
+                    setCurrentProductId(res.data.product[0].id)
                     setIsLoading(false);
                 })
                 .catch(e => {
@@ -155,27 +167,223 @@ export default function ProductDetailsScreen({ navigation,route }) {
         }
     }
 
-   
 
-    const startingDayqtyIncrement = () =>{
+
+    const startingDayqtyIncrement = () => {
         setStartingDayQty(startingDayQty + 1)
     }
 
-    const startingDayqtyDecrement = () =>{
+    const startingDayqtyDecrement = () => {
         if (startingDayQty > 0) {
             setStartingDayQty(startingDayQty - 1)
         }
     }
 
-    const succeedingDayqtyIncrement = () =>{
+    const succeedingDayqtyIncrement = () => {
         setSucceedingDayQty(succeedingDayQty + 1)
     }
 
-    const succeedingDayqtyDecrement = () =>{
+    const succeedingDayqtyDecrement = () => {
         if (succeedingDayQty > 0) {
             setSucceedingDayQty(succeedingDayQty - 1)
         }
     }
+
+    const placedByRepeatingOrder = () => {
+        // console.log(currentProductId, 'currentProductId')
+        // console.log(sundayQty, 'sundayQty')
+        // console.log(mondayQty, 'mondayQty')
+        // console.log(tuesdayQty, 'tuesdayQty')
+        // console.log(wednesdayQty, 'wednesdayQty')
+        // console.log(thursdayQty, 'thursdayQty')
+        // console.log(fridayQty, 'fridayQty')
+        // console.log(satardayQty, 'satardayQty')
+        // console.log(moment(date2).format("DD-MM-YYYY"), 'date')
+
+        var option = []
+        if (sundayQty != 0) {
+            option.push({
+                "product_id": currentProductId,
+                "quantity": sundayQty,
+                "date": moment(repeatingdate).format("DD-MM-YYYY"),
+                "product_subscription": 7,
+                "product_days": "sun"
+            })
+        }
+        if (mondayQty != 0) {
+            option.push({
+                "product_id": currentProductId,
+                "quantity": mondayQty,
+                "date": moment(repeatingdate).format("DD-MM-YYYY"),
+                "product_subscription": 7,
+                "product_days": "mon"
+            })
+        }
+        if (tuesdayQty != 0) {
+            option.push({
+                "product_id": currentProductId,
+                "quantity": tuesdayQty,
+                "date": moment(repeatingdate).format("DD-MM-YYYY"),
+                "product_subscription": 7,
+                "product_days": "tue"
+            })
+        }
+        if (wednesdayQty != 0) {
+            option.push({
+                "product_id": currentProductId,
+                "quantity": wednesdayQty,
+                "date": moment(repeatingdate).format("DD-MM-YYYY"),
+                "product_subscription": 7,
+                "product_days": "wed"
+            })
+        }
+        if (thursdayQty != 0) {
+            option.push({
+                "product_id": currentProductId,
+                "quantity": thursdayQty,
+                "date": moment(repeatingdate).format("DD-MM-YYYY"),
+                "product_subscription": 7,
+                "product_days": "thu"
+            })
+        }
+        if (fridayQty != 0) {
+            option.push({
+                "product_id": currentProductId,
+                "quantity": fridayQty,
+                "date": moment(repeatingdate).format("DD-MM-YYYY"),
+                "product_subscription": 7,
+                "product_days": "fri"
+            })
+        }
+        if (satardayQty != 0) {
+            option.push({
+                "product_id": currentProductId,
+                "quantity": satardayQty,
+                "date": moment(repeatingdate).format("DD-MM-YYYY"),
+                "product_subscription": 7,
+                "product_days": "sat"
+            })
+        }
+        let payloadData = {
+            "orders": option
+        }
+        console.log(payloadData, 'mmmmmmmmmmmmmmmmmmmmmm')
+
+        AsyncStorage.getItem('userToken', (err, usertoken) => {
+            axios.post(`${API_URL}/public/api/user/placeorder`,
+                payloadData,
+                {
+                    headers: {
+                        "Authorization": 'Bearer ' + usertoken,
+                        "Content-Type": 'application/json'
+                    },
+                })
+                .then(res => {
+                    console.log(res.data, 'place order')
+                    if (res.data.st == '200') {
+                        setModalVisible(false)
+                        Toast.show({
+                            type: 'success',
+                            text2: res.data.orders.message,
+                            position: 'top',
+                            topOffset: Platform.OS == 'ios' ? 55 : 20
+                        });
+                    } else if (res.data.st == '400') {
+                        setModalVisible(false)
+                        Toast.show({
+                            type: 'error',
+                            text2: res.data.orders[0].error,
+                            position: 'top',
+                            topOffset: Platform.OS == 'ios' ? 55 : 20
+                        });
+                    }
+
+                })
+                .catch(e => {
+                    console.log(`place order error ${e}`)
+                });
+
+        });
+
+    }
+
+    const placedAlternatedayOrder = () => {
+        console.log(startingDayQty, 'startingDayQty')
+        console.log(succeedingDayQty, 'succeedingDayQty')
+        console.log(moment(altdate).format("DD-MM-YYYY"), 'altdate')
+        const option = {
+            "orders": [
+                {
+                    "product_id": currentProductId,
+                    "quantity": startingDayQty,
+                    "date": moment(altdate).format("DD-MM-YYYY"),
+                    "product_subscription": 4,
+                    "product_days": "0"
+                },
+                {
+                    "product_id": currentProductId,
+                    "quantity": succeedingDayQty,
+                    "date": moment(altdate).format("DD-MM-YYYY"),
+                    "product_subscription": 4,
+                    "product_days": "0"
+                },
+                {
+                    "product_id": currentProductId,
+                    "quantity": succeedingDayQty,
+                    "date": moment(altdate).format("DD-MM-YYYY"),
+                    "product_subscription": 4,
+                    "product_days": "0"
+                },
+                {
+                    "product_id": currentProductId,
+                    "quantity": succeedingDayQty,
+                    "date": moment(altdate).format("DD-MM-YYYY"),
+                    "product_subscription": 4,
+                    "product_days": "0"
+                }
+            ]
+        }
+
+        AsyncStorage.getItem('userToken', (err, usertoken) => {
+            axios.post(`${API_URL}/public/api/user/placeorder`,
+            option,
+                {
+                    headers: {
+                        "Authorization": 'Bearer ' + usertoken,
+                        "Content-Type": 'application/json'
+                    },
+                })
+                .then(res => {
+                    console.log(res.data, 'place order')
+                    if (res.data.st == '200') {
+                        setModalVisible2(false)
+                        Toast.show({
+                            type: 'success',
+                            text2: res.data.orders.message,
+                            position: 'top',
+                            topOffset: Platform.OS == 'ios' ? 55 : 20
+                        });
+                    } else if (res.data.st == '400') {
+                        setModalVisible2(false)
+                        Toast.show({
+                            type: 'error',
+                            text2: res.data.orders[0].error,
+                            position: 'top',
+                            topOffset: Platform.OS == 'ios' ? 55 : 20
+                        });
+                    }
+
+                })
+                .catch(e => {
+                    console.log(`place order error ${e}`)
+                });
+
+        });
+
+    }
+
+    let current_date = new Date()
+    let day_after_current_date = current_date.getDate() + 1
 
     return (
         <SafeAreaView style={styles.Container}>
@@ -183,7 +391,7 @@ export default function ProductDetailsScreen({ navigation,route }) {
             <ScrollView style={styles.wrapper}>
                 <View style={{ paddingBottom: responsiveHeight(3) }}>
                     <View style={styles.imageView}>
-                        <Image source={{ uri: `http://162.215.253.89/PCP2023/public/${productsData[0].thumbnail_img}` }} style={styles.productimage} />
+                        <Image source={{ uri: `${API_URL}/public/${productsData[0].thumbnail_img}` }} style={styles.productimage} />
                     </View>
                     <View style={{ alignSelf: 'flex-start', marginTop: responsiveHeight(2) }}>
                         <Text style={styles.productText}>{productsData[0].name}</Text>
@@ -254,7 +462,7 @@ export default function ProductDetailsScreen({ navigation,route }) {
                                     <TouchableWithoutFeedback onPress={() => qtyDecrement('sundayQty')}>
                                         <Entypo name="minus" size={28} color="#000" />
                                     </TouchableWithoutFeedback>
-                                    <Text style={{ fontSize: responsiveFontSize(2.5), fontWeight: '800',color:'#000' }}>{sundayQty}</Text>
+                                    <Text style={{ fontSize: responsiveFontSize(2.5), fontWeight: '800', color: '#000' }}>{sundayQty}</Text>
                                     <TouchableWithoutFeedback onPress={() => qtyIncrement('sundayQty')}>
                                         <Entypo name="plus" size={28} color="#000" />
                                     </TouchableWithoutFeedback>
@@ -266,7 +474,7 @@ export default function ProductDetailsScreen({ navigation,route }) {
                                     <TouchableWithoutFeedback onPress={() => qtyDecrement('mondayQty')}>
                                         <Entypo name="minus" size={28} color="#000" />
                                     </TouchableWithoutFeedback>
-                                    <Text style={{ fontSize: responsiveFontSize(2.5), fontWeight: '800',color:'#000' }}>{mondayQty}</Text>
+                                    <Text style={{ fontSize: responsiveFontSize(2.5), fontWeight: '800', color: '#000' }}>{mondayQty}</Text>
                                     <TouchableWithoutFeedback onPress={() => qtyIncrement('mondayQty')}>
                                         <Entypo name="plus" size={28} color="#000" />
                                     </TouchableWithoutFeedback>
@@ -278,7 +486,7 @@ export default function ProductDetailsScreen({ navigation,route }) {
                                     <TouchableWithoutFeedback onPress={() => qtyDecrement('tuesdayQty')}>
                                         <Entypo name="minus" size={28} color="#000" />
                                     </TouchableWithoutFeedback>
-                                    <Text style={{ fontSize: responsiveFontSize(2.5), fontWeight: '800',color:'#000' }}>{tuesdayQty}</Text>
+                                    <Text style={{ fontSize: responsiveFontSize(2.5), fontWeight: '800', color: '#000' }}>{tuesdayQty}</Text>
                                     <TouchableWithoutFeedback onPress={() => qtyIncrement('tuesdayQty')}>
                                         <Entypo name="plus" size={28} color="#000" />
                                     </TouchableWithoutFeedback>
@@ -290,7 +498,7 @@ export default function ProductDetailsScreen({ navigation,route }) {
                                     <TouchableWithoutFeedback onPress={() => qtyDecrement('wednesdayQty')}>
                                         <Entypo name="minus" size={28} color="#000" />
                                     </TouchableWithoutFeedback>
-                                    <Text style={{ fontSize: responsiveFontSize(2.5), fontWeight: '800',color:'#000' }}>{wednesdayQty}</Text>
+                                    <Text style={{ fontSize: responsiveFontSize(2.5), fontWeight: '800', color: '#000' }}>{wednesdayQty}</Text>
                                     <TouchableWithoutFeedback onPress={() => qtyIncrement('wednesdayQty')}>
                                         <Entypo name="plus" size={28} color="#000" />
                                     </TouchableWithoutFeedback>
@@ -302,7 +510,7 @@ export default function ProductDetailsScreen({ navigation,route }) {
                                     <TouchableWithoutFeedback onPress={() => qtyDecrement('thursdayQty')}>
                                         <Entypo name="minus" size={28} color="#000" />
                                     </TouchableWithoutFeedback>
-                                    <Text style={{ fontSize: responsiveFontSize(2.5), fontWeight: '800',color:'#000' }}>{thursdayQty}</Text>
+                                    <Text style={{ fontSize: responsiveFontSize(2.5), fontWeight: '800', color: '#000' }}>{thursdayQty}</Text>
                                     <TouchableWithoutFeedback onPress={() => qtyIncrement('thursdayQty')}>
                                         <Entypo name="plus" size={28} color="#000" />
                                     </TouchableWithoutFeedback>
@@ -314,7 +522,7 @@ export default function ProductDetailsScreen({ navigation,route }) {
                                     <TouchableWithoutFeedback onPress={() => qtyDecrement('fridayQty')}>
                                         <Entypo name="minus" size={28} color="#000" />
                                     </TouchableWithoutFeedback>
-                                    <Text style={{ fontSize: responsiveFontSize(2.5), fontWeight: '800',color:'#000' }}>{fridayQty}</Text>
+                                    <Text style={{ fontSize: responsiveFontSize(2.5), fontWeight: '800', color: '#000' }}>{fridayQty}</Text>
                                     <TouchableWithoutFeedback onPress={() => qtyIncrement('fridayQty')}>
                                         <Entypo name="plus" size={28} color="#000" />
                                     </TouchableWithoutFeedback>
@@ -326,7 +534,7 @@ export default function ProductDetailsScreen({ navigation,route }) {
                                     <TouchableWithoutFeedback onPress={() => qtyDecrement('satardayQty')}>
                                         <Entypo name="minus" size={28} color="#000" />
                                     </TouchableWithoutFeedback>
-                                    <Text style={{ fontSize: responsiveFontSize(2.5), fontWeight: '800',color:'#000' }}>{satardayQty}</Text>
+                                    <Text style={{ fontSize: responsiveFontSize(2.5), fontWeight: '800', color: '#000' }}>{satardayQty}</Text>
                                     <TouchableWithoutFeedback onPress={() => qtyIncrement('satardayQty')}>
                                         <Entypo name="plus" size={28} color="#000" />
                                     </TouchableWithoutFeedback>
@@ -345,6 +553,7 @@ export default function ProductDetailsScreen({ navigation,route }) {
                             modal
                             open={repeatingopen}
                             date={repeatingdate}
+                            minimumDate={new Date(formattedNextDay)}
                             onConfirm={(date) => {
                                 setrepeatingOpen(false)
                                 setrepeatingDate(date)
@@ -365,7 +574,7 @@ export default function ProductDetailsScreen({ navigation,route }) {
                     </TouchableOpacity>
                     <View style={styles.buttonwrapper}>
                         <CustomButton label={"Set a repeating order"}
-                            onPress={() => { navigation.navigate('ProfileInformation') }}
+                            onPress={() => { placedByRepeatingOrder() }}
                         />
                     </View>
                 </View>
@@ -405,7 +614,7 @@ export default function ProductDetailsScreen({ navigation,route }) {
                                     <TouchableWithoutFeedback onPress={() => startingDayqtyDecrement()}>
                                         <Entypo name="minus" size={28} color="#000" />
                                     </TouchableWithoutFeedback>
-                                    <Text style={{ fontSize: responsiveFontSize(2.5), fontWeight: '800',color:'#000' }}>{startingDayQty}</Text>
+                                    <Text style={{ fontSize: responsiveFontSize(2.5), fontWeight: '800', color: '#000' }}>{startingDayQty}</Text>
                                     <TouchableWithoutFeedback onPress={() => startingDayqtyIncrement()}>
                                         <Entypo name="plus" size={28} color="#000" />
                                     </TouchableWithoutFeedback>
@@ -419,7 +628,7 @@ export default function ProductDetailsScreen({ navigation,route }) {
                                     <TouchableWithoutFeedback onPress={() => succeedingDayqtyDecrement()}>
                                         <Entypo name="minus" size={28} color="#000" />
                                     </TouchableWithoutFeedback>
-                                    <Text style={{ fontSize: responsiveFontSize(2.5), fontWeight: '800',color:'#000' }}>{succeedingDayQty}</Text>
+                                    <Text style={{ fontSize: responsiveFontSize(2.5), fontWeight: '800', color: '#000' }}>{succeedingDayQty}</Text>
                                     <TouchableWithoutFeedback onPress={() => succeedingDayqtyIncrement()}>
                                         <Entypo name="plus" size={28} color="#000" />
                                     </TouchableWithoutFeedback>
@@ -437,6 +646,7 @@ export default function ProductDetailsScreen({ navigation,route }) {
                             modal
                             open={altopen}
                             date={altdate}
+                            minimumDate={new Date(formattedNextDay)}
                             onConfirm={(date) => {
                                 setaltOpen(false)
                                 setaltDate(date)
@@ -456,7 +666,7 @@ export default function ProductDetailsScreen({ navigation,route }) {
                     </TouchableOpacity>
                     <View style={styles.buttonwrapper}>
                         <CustomButton label={"Add Subscription"}
-                            onPress={() => { navigation.navigate('ProfileInformation') }}
+                            onPress={() => { placedAlternatedayOrder() }}
                         />
                     </View>
                 </View>

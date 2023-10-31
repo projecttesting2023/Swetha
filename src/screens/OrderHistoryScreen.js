@@ -10,6 +10,8 @@ import Loader from '../utils/Loader';
 import { getUpcomingOrderHistory } from '../store/orderHistory/upcomingOrderHistorySlice';
 import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import moment from "moment"
+import { API_URL } from '@env'
 
 const PastOrder = ({ navigation }) => {
     const dispatch = useDispatch();
@@ -18,7 +20,9 @@ const PastOrder = ({ navigation }) => {
     const [isLoading, setIsLoading] = useState(true)
 
     const fetchPastOrder = () => {
-        dispatch(getPastOrderHistory())
+        AsyncStorage.getItem('userToken', (err, usertoken) => {
+            dispatch(getPastOrderHistory(usertoken))
+        });
     }
 
     useEffect(() => {
@@ -49,17 +53,17 @@ const PastOrder = ({ navigation }) => {
                     return (
                         <View style={styles.pastOrderContainer} >
                             <View style={styles.pastOrderView}>
-                                <Image source={milkImg} style={styles.productimage} />
+                                <Image source={{ uri: `${API_URL}/public/${item?.thumbnail_img}` }} style={styles.productimage} />
                                 <View style={styles.productdesc}>
-                                    <Text style={styles.productName}>Salted Cow Butter</Text>
+                                    <Text style={styles.productName}>{item.name}</Text>
                                     <Text style={styles.productQuantity}>
-                                        100 GMS BOX
-                                        <Text style={styles.productQuantityno}>   X 2</Text>
+                                    {item.volume}
+                                        <Text style={styles.productQuantityno}>   X {item.quantity}</Text>
                                     </Text>
-                                    <Text style={styles.amount}>₹200.00</Text>
+                                    <Text style={styles.amount}>₹{item.order_ammount}</Text>
                                     <View style={styles.buttonContainer}>
                                         <View style={styles.buttonView}>
-                                            <Text style={{ color: '#595959' }}>Delivered</Text>
+                                            <Text style={{ color: '#595959' }}>Delivered on {moment(item.updated_at).format("DD-MM-YYYY")}</Text>
                                         </View>
                                         {/* <View style={styles.buttonView2}>
                                         <Text style={{ color: '#FFF' }}>Repeat</Text>
@@ -96,6 +100,11 @@ const UpcomingOrder = ({ navigation }) => {
     useEffect(() => {
         fetchUpcomingOrder();
     }, [dispatch])
+    useFocusEffect(
+        React.useCallback(() => {
+            fetchUpcomingOrder()
+        }, [])
+    )
 
     useEffect(() => {
         // console.log(status, 'upcoming status')
@@ -121,7 +130,7 @@ const UpcomingOrder = ({ navigation }) => {
                     return (
                         <View style={styles.pastOrderContainer} >
                             <View style={styles.pastOrderView}>
-                                <Image source={{ uri: `http://162.215.253.89/PCP2023/public/${item?.thumbnail_img}` }} style={styles.productimage} />
+                                <Image source={{ uri: `${API_URL}/public/${item?.thumbnail_img}` }} style={styles.productimage} />
                                 <View style={styles.productdesc}>
                                     <Text style={styles.productName}>{item.name}</Text>
                                     <Text style={styles.productQuantity}>

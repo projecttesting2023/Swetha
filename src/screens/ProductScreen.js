@@ -22,6 +22,7 @@ import { getCategory } from '../store/categorySlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { discountImg, milkImg, } from '../utils/Images';
 import Loader from '../utils/Loader';
+import { API_URL } from '@env'
 import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions';
 import CustomHeader from '../components/CustomHeader';
 import DatePicker from 'react-native-date-picker'
@@ -54,15 +55,23 @@ export default function ProductScreen({ navigation, route }) {
     const [categoryData, setCategoryData] = useState([])
     const [isLoading, setIsLoading] = useState(true)
 
-    const [sundayQty, setSundayQty] = useState(1)
-    const [mondayQty, setMondayQty] = useState(1)
-    const [tuesdayQty, setTuesdayQty] = useState(1)
-    const [wednesdayQty, setWednesdayQty] = useState(1)
-    const [thursdayQty, setThursdayQty] = useState(1)
-    const [fridayQty, setFridayQty] = useState(1)
-    const [satardayQty, setSatardayQty] = useState(1)
-    
+    const [sundayQty, setSundayQty] = useState(0)
+    const [mondayQty, setMondayQty] = useState(0)
+    const [tuesdayQty, setTuesdayQty] = useState(0)
+    const [wednesdayQty, setWednesdayQty] = useState(0)
+    const [thursdayQty, setThursdayQty] = useState(0)
+    const [fridayQty, setFridayQty] = useState(0)
+    const [satardayQty, setSatardayQty] = useState(0)
+
     const [currentProductId, setCurrentProductId] = useState(0)
+
+    const currentDate = moment();
+
+    // Get the next day
+    const nextDay = currentDate.add(2, 'days');
+    
+    // Format the next day as a string (if needed)
+    const formattedNextDay = nextDay.format('YYYY-MM-DD');
 
     const fetchProducts = () => {
         dispatch(getProducts())
@@ -103,7 +112,7 @@ export default function ProductScreen({ navigation, route }) {
     const getCategory = () => {
         AsyncStorage.getItem('userToken', (err, usertoken) => {
             console.log(usertoken, 'user token')
-            axios.get(`http://162.215.253.89/PCP2023/public/api/user/categories`, {
+            axios.get(`${API_URL}/public/api/user/categories`, {
                 headers: {
                     "Authorization": 'Bearer ' + usertoken,
                     "Content-Type": 'application/json'
@@ -130,7 +139,7 @@ export default function ProductScreen({ navigation, route }) {
             "catagori_id": id
         }
         AsyncStorage.getItem('userToken', (err, usertoken) => {
-            axios.post(`http://162.215.253.89/PCP2023/public/api/user/catagorybyproduct`,
+            axios.post(`${API_URL}/public/api/user/catagorybyproduct`,
                 option,
                 {
                     headers: {
@@ -226,22 +235,25 @@ export default function ProductScreen({ navigation, route }) {
     }
     const subscribeModalOpen = (productId) => {
         console.log(productId)
+        setCurrentProductId(productId)
         setModalVisible2(true)
     }
 
-    const placedByOnceOrder = () =>{
+    const placedByOnceOrder = () => {
         const option = {
             "orders": [
-              {
-                "product_id": currentProductId,
-                "quantity": startingDayQty,
-                "date": moment(date).format("YYYY-MM-DD")
-              }
+                {
+                    "product_id": currentProductId,
+                    "quantity": startingDayQty,
+                    "date": moment(date).format("DD-MM-YYYY"),
+                    "product_subscription": 0,
+                    "product_days": "0"
+                }
             ]
-          }
-          console.log(option,'order plaayloaad')
-          AsyncStorage.getItem('userToken', (err, usertoken) => {
-            axios.post(`http://162.215.253.89/PCP2023/public/api/user/placeorder`,
+        }
+        console.log(option, 'order plaayloaad')
+        AsyncStorage.getItem('userToken', (err, usertoken) => {
+            axios.post(`${API_URL}/public/api/user/placeorder`,
                 option,
                 {
                     headers: {
@@ -251,7 +263,7 @@ export default function ProductScreen({ navigation, route }) {
                 })
                 .then(res => {
                     console.log(res.data, 'place order')
-                    if(res.data.st == '200'){
+                    if (res.data.st == '200') {
                         setModalVisible(false)
                         Toast.show({
                             type: 'success',
@@ -259,7 +271,7 @@ export default function ProductScreen({ navigation, route }) {
                             position: 'top',
                             topOffset: Platform.OS == 'ios' ? 55 : 20
                         });
-                    }else if(res.data.st == '400'){
+                    } else if (res.data.st == '400') {
                         setModalVisible(false)
                         Toast.show({
                             type: 'error',
@@ -268,13 +280,131 @@ export default function ProductScreen({ navigation, route }) {
                             topOffset: Platform.OS == 'ios' ? 55 : 20
                         });
                     }
-                   
+
                 })
                 .catch(e => {
                     console.log(`place order error ${e}`)
                 });
 
         });
+    }
+
+    const placedByRepeatingOrder = () => {
+        // console.log(currentProductId, 'currentProductId')
+        // console.log(sundayQty, 'sundayQty')
+        // console.log(mondayQty, 'mondayQty')
+        // console.log(tuesdayQty, 'tuesdayQty')
+        // console.log(wednesdayQty, 'wednesdayQty')
+        // console.log(thursdayQty, 'thursdayQty')
+        // console.log(fridayQty, 'fridayQty')
+        // console.log(satardayQty, 'satardayQty')
+        // console.log(moment(date2).format("DD-MM-YYYY"), 'date')
+
+        var option = []
+        if (sundayQty != 0) {
+            option.push({
+                "product_id": currentProductId,
+                "quantity": sundayQty,
+                "date": moment(date2).format("DD-MM-YYYY"),
+                "product_subscription": 7,
+                "product_days": "sun"
+            })
+        }
+        if (mondayQty != 0) {
+            option.push({
+                "product_id": currentProductId,
+                "quantity": mondayQty,
+                "date": moment(date2).format("DD-MM-YYYY"),
+                "product_subscription": 7,
+                "product_days": "mon"
+            })
+        }
+        if (tuesdayQty != 0) {
+            option.push({
+                "product_id": currentProductId,
+                "quantity": tuesdayQty,
+                "date": moment(date2).format("DD-MM-YYYY"),
+                "product_subscription": 7,
+                "product_days": "tue"
+            })
+        }
+        if (wednesdayQty != 0) {
+            option.push({
+                "product_id": currentProductId,
+                "quantity": wednesdayQty,
+                "date": moment(date2).format("DD-MM-YYYY"),
+                "product_subscription": 7,
+                "product_days": "wed"
+            })
+        }
+        if (thursdayQty != 0) {
+            option.push({
+                "product_id": currentProductId,
+                "quantity": thursdayQty,
+                "date": moment(date2).format("DD-MM-YYYY"),
+                "product_subscription": 7,
+                "product_days": "thu"
+            })
+        }
+        if (fridayQty != 0) {
+            option.push({
+                "product_id": currentProductId,
+                "quantity": fridayQty,
+                "date": moment(date2).format("DD-MM-YYYY"),
+                "product_subscription": 7,
+                "product_days": "fri"
+            })
+        }
+        if (satardayQty != 0) {
+            option.push({
+                "product_id": currentProductId,
+                "quantity": satardayQty,
+                "date": moment(date2).format("DD-MM-YYYY"),
+                "product_subscription": 7,
+                "product_days": "sat"
+            })
+        }
+        let payloadData = {
+            "orders": option
+        }
+        console.log(payloadData,'mmmmmmmmmmmmmmmmmmmmmm')
+
+        AsyncStorage.getItem('userToken', (err, usertoken) => {
+            axios.post(`${API_URL}/public/api/user/placeorder`,
+            payloadData,
+                {
+                    headers: {
+                        "Authorization": 'Bearer ' + usertoken,
+                        "Content-Type": 'application/json'
+                    },
+                })
+                .then(res => {
+                    console.log(res.data, 'place order')
+                    if (res.data.st == '200') {
+                        setModalVisible2(false)
+                        Toast.show({
+                            type: 'success',
+                            text2: res.data.orders.message,
+                            position: 'top',
+                            topOffset: Platform.OS == 'ios' ? 55 : 20
+                        });
+                    } else if (res.data.st == '400') {
+                        setModalVisible2(false)
+                        Toast.show({
+                            type: 'error',
+                            text2: res.data.orders[0].error,
+                            position: 'top',
+                            topOffset: Platform.OS == 'ios' ? 55 : 20
+                        });
+                    }
+
+                })
+                .catch(e => {
+                    console.log(`place order error ${e}`)
+                });
+
+        });
+
     }
 
     const renderProducts = ({ item }) => {
@@ -287,7 +417,7 @@ export default function ProductScreen({ navigation, route }) {
                             <Image source={discountImg} style={styles.discountimg} />
                             <Text style={styles.discountText}>₹{save_amount}  DISCOUNT Bye Now @{item.discount_ammount} Only!</Text>
                         </View>
-                        <Image source={{ uri: `http://162.215.253.89/PCP2023/public/${item?.thumbnail_img}` }} style={styles.productimage} />
+                        <Image source={{ uri: `${API_URL}/public/${item?.thumbnail_img}` }} style={styles.productimage} />
                         <View style={{ alignSelf: 'flex-start', marginLeft: 10 }}>
                             <Text style={styles.productText} numberOfLines={1}>{item.name}</Text>
                             <Text style={styles.productText2}>{item.volume}</Text>
@@ -328,6 +458,8 @@ export default function ProductScreen({ navigation, route }) {
             </TouchableWithoutFeedback>
         )
     }
+
+    
 
     return (
         <SafeAreaView style={styles.Container}>
@@ -408,6 +540,7 @@ export default function ProductScreen({ navigation, route }) {
                             modal
                             open={open}
                             date={date}
+                            minimumDate={new Date(formattedNextDay)}
                             onConfirm={(date) => {
                                 setOpen(false)
                                 setDate(date)
@@ -558,6 +691,7 @@ export default function ProductScreen({ navigation, route }) {
                             modal
                             open={open2}
                             date={date2}
+                            minimumDate={new Date(formattedNextDay)}
                             onConfirm={(date) => {
                                 setOpen2(false)
                                 setDate2(date)
@@ -577,7 +711,7 @@ export default function ProductScreen({ navigation, route }) {
                     </TouchableOpacity>
                     <View style={styles.buttonwrapper}>
                         <CustomButton label={"Set a repeating order"}
-                            onPress={() => { null }}
+                            onPress={() => { placedByRepeatingOrder() }}
                         />
                     </View>
                 </View>

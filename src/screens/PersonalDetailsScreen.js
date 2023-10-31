@@ -19,6 +19,7 @@ import Loader from '../utils/Loader';
 import { submitProfileDetails } from '../store/profile/profieDetailsSubmitSlice';
 import { AuthContext } from '../context/AuthContext';
 import Toast from 'react-native-toast-message';
+import { API_URL } from '@env'
 
 const PersonalDetailsScreen = ({ navigation, route }) => {
     const dispatch = useDispatch();
@@ -63,7 +64,7 @@ const PersonalDetailsScreen = ({ navigation, route }) => {
 
     const fetchProfileDetails = () => {
         AsyncStorage.getItem('userToken', (err, usertoken) => {
-            axios.get(`http://162.215.253.89/PCP2023/public/api/user/getUser`, {
+            axios.get(`${API_URL}/public/api/user/getUser`, {
                 headers: {
                     "Authorization": 'Bearer ' + usertoken,
                     "Content-Type": 'application/json'
@@ -144,7 +145,7 @@ const PersonalDetailsScreen = ({ navigation, route }) => {
                 "name": name,
                 "email": email,
             }
-            axios.put(`http://162.215.253.89/PCP2023/public/api/user/updateUser`,
+            axios.put(`${API_URL}/public/api/user/updateUser`,
                 option,
                 {
                     headers: {

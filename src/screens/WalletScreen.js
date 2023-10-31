@@ -21,7 +21,7 @@ import CustomSwitch from '../components/CustomSwitch';
 import ListItem from '../components/ListItem';
 import { AuthContext } from '../context/AuthContext';
 import { getProducts } from '../store/productSlice'
-
+import { API_URL } from '@env'
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 import { add } from '../store/cartSlice';
@@ -51,12 +51,25 @@ export default function WalletScreen({ navigation }) {
     const [isLoading, setIsLoading] = useState(true)
 
     const fetchProfileDetails = () => {
-        AsyncStorage.getItem('userInfo', (err, userInfo) => {
-            let data = JSON.parse(userInfo)
-            // console.log(data)
-            setWalletAmount(data.walate)
-            setIsLoading(false)
+        AsyncStorage.getItem('userToken', (err, usertoken) => {
+           
+            axios.get(`${API_URL}/public/api/user/getUser`, {
+                headers: {
+                    "Authorization": 'Bearer ' + usertoken,
+                    "Content-Type": 'application/json'
+                },
+            })
+                .then(res => {
+                    console.log(res.data.user,'user details')
+                    let userInfo = res.data.user; 
+                    setWalletAmount(userInfo.walate)
+                    setIsLoading(false);
+                })
+                .catch(e => {
+                    console.log(`Login error ${e}`)
+                }); 
         });
+       
     }
 
     useEffect(() => {
@@ -113,7 +126,7 @@ export default function WalletScreen({ navigation }) {
                 "amount": amount
             }
             AsyncStorage.getItem('userToken', (err, usertoken) => {
-                axios.post(`http://162.215.253.89/PCP2023/public/api/user/checkpromocode`,
+                axios.post(`${API_URL}/public/api/user/checkpromocode`,
                     option,
                     {
                         headers: {

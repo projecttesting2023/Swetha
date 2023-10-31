@@ -13,6 +13,7 @@ import Loader from '../utils/Loader';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import Toast from 'react-native-toast-message';
+import { API_URL } from '@env'
 
 const HolidaysScreen = ({ navigation }) => {
     const dispatch = useDispatch();
@@ -57,7 +58,7 @@ const HolidaysScreen = ({ navigation }) => {
             "date": date
         }
         AsyncStorage.getItem('userToken', (err, usertoken) => {
-            axios.delete(`http://162.215.253.89/PCP2023/public/api/user/holidaydestroy`,
+            axios.delete(`${API_URL}/public/api/user/holidaydestroy`,
                 {
                     headers: {
                         "Authorization": 'Bearer ' + usertoken,
@@ -102,7 +103,7 @@ const HolidaysScreen = ({ navigation }) => {
             "date": selected
         }
         AsyncStorage.getItem('userToken', (err, usertoken) => {
-            axios.post(`http://162.215.253.89/PCP2023/public/api/user/holidays`,
+            axios.post(`${API_URL}/public/api/user/holidays`,
                 option,
                 {
                     headers: {

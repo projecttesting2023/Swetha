@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect,useContext } from 'react';
+import React, { useState, useMemo, useEffect, useContext } from 'react';
 import { View, Text, SafeAreaView, StyleSheet, ScrollView, ImageBackground, Image, TouchableOpacity, KeyboardAwareScrollView } from 'react-native'
 import CheckBox from '@react-native-community/checkbox'
 import CustomHeader from '../components/CustomHeader'
@@ -12,6 +12,7 @@ import InputField from '../components/InputField';
 import { Dropdown } from 'react-native-element-dropdown';
 import RadioGroup from 'react-native-radio-buttons-group';
 import axios from "axios";
+import { API_URL } from '@env'
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AuthContext } from '../context/AuthContext';
 
@@ -20,13 +21,25 @@ const ProfileScreen = ({ navigation }) => {
   const [walletAmount, setWalletAmount] = React.useState('0.00')
 
   const fetchProfileDetails = () => {
-    AsyncStorage.getItem('userInfo', (err, userInfo) => {
-      let data = JSON.parse(userInfo)
-      // console.log(data)
-      setWalletAmount(data.walate)
-     
-  });
-}
+    AsyncStorage.getItem('userToken', (err, usertoken) => {
+
+      axios.get(`${API_URL}/public/api/user/getUser`, {
+        headers: {
+          "Authorization": 'Bearer ' + usertoken,
+          "Content-Type": 'application/json'
+        },
+      })
+        .then(res => {
+          console.log(res.data.user, 'user details')
+          let userInfo = res.data.user;
+          setWalletAmount(userInfo.walate)
+          setIsLoading(false);
+        })
+        .catch(e => {
+          console.log(`Login error ${e}`)
+        });
+    });
+  }
 
   useEffect(() => {
     fetchProfileDetails()
@@ -90,7 +103,7 @@ const ProfileScreen = ({ navigation }) => {
 
       </ScrollView>
       <View style={styles.buttonwrapper}>
-        <CustomButton label={"Logout"} buttonIcon={false} onPress={()=>logout()} />
+        <CustomButton label={"Logout"} buttonIcon={false} onPress={() => logout()} />
       </View>
 
     </SafeAreaView>

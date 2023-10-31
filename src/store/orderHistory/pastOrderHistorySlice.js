@@ -31,9 +31,14 @@ const pastOrderHistorySlice = createSlice({
 export const { fetchPastOrderHistory } = pastOrderHistorySlice.actions;
 export default pastOrderHistorySlice.reducer;
 
-export const getPastOrderHistory = createAsyncThunk('pastOrderHistory/get', async () => {
-    const res = await axios.get('https://fakestoreapi.com/products');
-    const result = await res.data;
+export const getPastOrderHistory = createAsyncThunk('pastOrderHistory/get', async (usertoken) => {
+    const res = await axios.get('http://162.215.253.89/PCP2023/public/api/user/orderview', {
+        headers: {
+            "Authorization": 'Bearer ' + usertoken,
+            "Content-Type": 'application/json'
+        },
+    });
+    const result = await res.data.Completed_orders;
     return result;
 
 })

@@ -38,7 +38,7 @@ export const getUpcomingOrderHistory = createAsyncThunk('upcomingOrderHistory/ge
             "Content-Type": 'application/json'
         },
     });
-    const result = await res.data.Your_orders;
+    const result = await res.data.NonCompleted_orders;
     return result;
 
 })

@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { View, Text, Button, Platform,Alert } from 'react-native'
+import { View, Text, Button, Platform, Alert } from 'react-native'
 import { RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET } from '@env'
 import RazorpayCheckout from 'react-native-razorpay';
 import Toast from 'react-native-toast-message';
@@ -7,6 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Orientation from 'react-native-orientation-locker';
 import DatePicker from 'react-native-modern-datepicker';
 import { RNHTMLtoPDF } from 'react-native-html-to-pdf';
+import moment from 'moment';
 
 const SettingsScreen = () => {
   let razorpayKeyId = RAZORPAY_KEY_ID;
@@ -88,6 +89,18 @@ const SettingsScreen = () => {
     }
   };
 
+  const dayAfterCurrentDate = () => {
+    const currentDate = moment();
+
+    // Get the next day
+    const nextDay = currentDate.add(2, 'days');
+    
+    // Format the next day as a string (if needed)
+    const formattedNextDay = nextDay.format('YYYY-MM-DD');
+    
+    console.log(formattedNextDay);
+  }
+
   return (
     <SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
       <Text>Settings Screen</Text>
@@ -106,6 +119,10 @@ const SettingsScreen = () => {
       <Button
         title='Generate PDF'
         onPress={convertHtmlToPdf}
+      />
+      <Button
+        title='Day After Current Date'
+        onPress={dayAfterCurrentDate}
       />
       <Text>{selectedDate}</Text>
       <DatePicker
