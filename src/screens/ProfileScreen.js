@@ -11,6 +11,7 @@ import CustomButton from '../components/CustomButton'
 import InputField from '../components/InputField';
 import { Dropdown } from 'react-native-element-dropdown';
 import RadioGroup from 'react-native-radio-buttons-group';
+import { useFocusEffect } from '@react-navigation/native';
 import axios from "axios";
 import { API_URL } from '@env'
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -44,6 +45,12 @@ const ProfileScreen = ({ navigation }) => {
   useEffect(() => {
     fetchProfileDetails()
   }, [])
+
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchProfileDetails()
+    }, [])
+)
   return (
     <SafeAreaView style={styles.Container}>
       <CustomHeader commingFrom={'Profile'} onPress={() => navigation.goBack()} title={'Profile'} />

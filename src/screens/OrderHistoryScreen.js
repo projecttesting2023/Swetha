@@ -28,6 +28,11 @@ const PastOrder = ({ navigation }) => {
     useEffect(() => {
         fetchPastOrder();
     }, [])
+    useFocusEffect(
+        React.useCallback(() => {
+            fetchPastOrder()
+        }, [])
+    )
 
     useEffect(() => {
         console.log(status, 'past order status')
@@ -47,40 +52,43 @@ const PastOrder = ({ navigation }) => {
 
     return (
         <View style={{ marginBottom: responsiveHeight(2) }}>
-            <FlatList
-                data={pastOrderHistory}
-                renderItem={({ item }) => {
-                    return (
-                        <View style={styles.pastOrderContainer} >
-                            <View style={styles.pastOrderView}>
-                                <Image source={{ uri: `${API_URL}/public/${item?.thumbnail_img}` }} style={styles.productimage} />
-                                <View style={styles.productdesc}>
-                                    <Text style={styles.productName}>{item.name}</Text>
-                                    <Text style={styles.productQuantity}>
-                                    {item.volume}
-                                        <Text style={styles.productQuantityno}>   X {item.quantity}</Text>
-                                    </Text>
-                                    <Text style={styles.amount}>₹{item.order_ammount}</Text>
-                                    <View style={styles.buttonContainer}>
-                                        <View style={styles.buttonView}>
-                                            <Text style={{ color: '#595959' }}>Delivered on {moment(item.updated_at).format("DD-MM-YYYY")}</Text>
-                                        </View>
-                                        {/* <View style={styles.buttonView2}>
+            {pastOrderHistory.length === 0 ?
+                <Text style={{ color: '#000', padding: 20 }}>No data Found</Text>
+                :
+                <FlatList
+                    data={pastOrderHistory}
+                    renderItem={({ item }) => {
+                        return (
+                            <View style={styles.pastOrderContainer} >
+                                <View style={styles.pastOrderView}>
+                                    <Image source={{ uri: `${API_URL}/public/${item?.thumbnail_img}` }} style={styles.productimage} />
+                                    <View style={styles.productdesc}>
+                                        <Text style={styles.productName}>{item.name}</Text>
+                                        <Text style={styles.productQuantity}>
+                                            {item.volume}
+                                            <Text style={styles.productQuantityno}>   X {item.quantity}</Text>
+                                        </Text>
+                                        <Text style={styles.amount}>₹{item.order_ammount}</Text>
+                                        <View style={styles.buttonContainer}>
+                                            <View style={styles.buttonView}>
+                                                <Text style={{ color: '#595959' }}>Delivered on {moment(item.updated_at).format("DD-MM-YYYY")}</Text>
+                                            </View>
+                                            {/* <View style={styles.buttonView2}>
                                         <Text style={{ color: '#FFF' }}>Repeat</Text>
                                     </View> */}
+                                        </View>
                                     </View>
                                 </View>
                             </View>
-                        </View>
-                    )
-                }}
-                keyExtractor={(item, index) => index}
-                horizontal={false}
-                showsVerticalScrollIndicator={false}
-                removeClippedSubviews={true}
-                initialNumToRender={5}
-                numColumns={1}
-            />
+                        )
+                    }}
+                    keyExtractor={(item, index) => index}
+                    horizontal={false}
+                    showsVerticalScrollIndicator={false}
+                    removeClippedSubviews={true}
+                    initialNumToRender={5}
+                    numColumns={1}
+                />}
         </View>
     )
 };
@@ -124,40 +132,43 @@ const UpcomingOrder = ({ navigation }) => {
     }
     return (
         <View style={{ marginBottom: responsiveHeight(2) }}>
-            <FlatList
-                data={upcomingOrderHistory}
-                renderItem={({ item }) => {
-                    return (
-                        <View style={styles.pastOrderContainer} >
-                            <View style={styles.pastOrderView}>
-                                <Image source={{ uri: `${API_URL}/public/${item?.thumbnail_img}` }} style={styles.productimage} />
-                                <View style={styles.productdesc}>
-                                    <Text style={styles.productName}>{item.name}</Text>
-                                    <Text style={styles.productQuantity}>
-                                        {item.volume}
-                                        <Text style={styles.productQuantityno}>   X {item.quantity}</Text>
-                                    </Text>
-                                    <Text style={styles.amount}>₹{item.order_ammount}</Text>
-                                    <View style={styles.buttonContainer}>
-                                        <View style={styles.buttonView}>
-                                            <Text style={{ color: '#595959' }}>Delivered by {item.date}</Text>
-                                        </View>
-                                        {/* <View style={styles.buttonView2}>
+            {upcomingOrderHistory.length === 0 ?
+                <Text style={{ color: '#000', padding: 20 }}>No data Found</Text>
+                :
+                <FlatList
+                    data={upcomingOrderHistory}
+                    renderItem={({ item }) => {
+                        return (
+                            <View style={styles.pastOrderContainer} >
+                                <View style={styles.pastOrderView}>
+                                    <Image source={{ uri: `${API_URL}/public/${item?.thumbnail_img}` }} style={styles.productimage} />
+                                    <View style={styles.productdesc}>
+                                        <Text style={styles.productName}>{item.name}</Text>
+                                        <Text style={styles.productQuantity}>
+                                            {item.volume}
+                                            <Text style={styles.productQuantityno}>   X {item.quantity}</Text>
+                                        </Text>
+                                        <Text style={styles.amount}>₹{item.order_ammount}</Text>
+                                        <View style={styles.buttonContainer}>
+                                            <View style={styles.buttonView}>
+                                                <Text style={{ color: '#595959' }}>Delivered by {item.date}</Text>
+                                            </View>
+                                            {/* <View style={styles.buttonView2}>
                                     <Text style={{ color: '#FFF' }}>Repeat</Text>
                                 </View> */}
+                                        </View>
                                     </View>
                                 </View>
                             </View>
-                        </View>
-                    )
-                }}
-                keyExtractor={(item, index) => index}
-                horizontal={false}
-                showsVerticalScrollIndicator={false}
-                removeClippedSubviews={true}
-                initialNumToRender={5}
-                numColumns={1}
-            />
+                        )
+                    }}
+                    keyExtractor={(item, index) => index}
+                    horizontal={false}
+                    showsVerticalScrollIndicator={false}
+                    removeClippedSubviews={true}
+                    initialNumToRender={5}
+                    numColumns={1}
+                />}
         </View>
     )
 };

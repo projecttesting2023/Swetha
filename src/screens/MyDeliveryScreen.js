@@ -12,7 +12,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getMyDeliveries } from '../store/delivery/myDeliveriesSlice';
 import { getSearchDeliveries } from '../store/delivery/searchByDateSlice';
 import Loader from '../utils/Loader';
-import { API_URL } from '@env'
+import { API_URL } from '@env';
+import { useFocusEffect } from '@react-navigation/native';
 
 const MyDeliveryScreen = ({ navigation }) => {
     const dispatch = useDispatch();
@@ -21,6 +22,7 @@ const MyDeliveryScreen = ({ navigation }) => {
 
     const [selected, setSelected] = useState('');
     const [modalVisible, setModalVisible] = useState(false);
+    const [myFinalDeliveriesData, setMyFinalDeliveriesData] = useState([]);
     const [myDeliveriesData, setMyDeliveriesData] = useState([]);
     const [isLoading, setIsLoading] = useState(true)
 
@@ -32,10 +34,17 @@ const MyDeliveryScreen = ({ navigation }) => {
     useEffect(() => {
         fetchMyDelivery();
     }, [])
+    useFocusEffect(
+        React.useCallback(() => {
+            fetchMyDelivery()
+        }, [])
+    )
 
     useEffect(() => {
         //console.log(status, 'my delivery status')
         if (status == 'success') {
+            console.log(myDeliveries,'myDeliveriesmyDeliveries')
+            setMyFinalDeliveriesData(myDeliveries)
             setMyDeliveriesData(myDeliveries)
             setIsLoading(false)
         } else if (status == 'loading') {
@@ -73,29 +82,33 @@ const MyDeliveryScreen = ({ navigation }) => {
         // setMyDeliveriesData([searchDelivery])
         //console.log(myDeliveriesData, 'iiiiiiiiiiiiiiiiiii')
         const searchDate = moment(selected).format("DD-MM-YYYY");
-        const data = myDeliveriesData;
+        const data = myFinalDeliveriesData;
         const result = data.filter(item => item.date === searchDate);
 
-        //console.log(result,'searched result');
+        // console.log(result,'searched result');
         setModalVisible(false)
-        setMyDeliveriesData(result)
+        setMyDeliveriesData(result) 
 
-    }
+    } 
 
     return (
         <SafeAreaView style={styles.Container}>
             <CustomHeader commingFrom={'Delivery'} onPress={() => navigation.goBack()} title={'My Deliveries'} />
             <View style={styles.wrapper}>
-                <FlatList
-                    data={myDeliveriesData}
-                    renderItem={renderMyDeliveries}
-                    keyExtractor={(item, index) => index}
-                    horizontal={false}
-                    showsVerticalScrollIndicator={false}
-                    removeClippedSubviews={true}
-                    initialNumToRender={5}
-                    numColumns={1}
-                />
+                {myDeliveriesData.length === 0 ?
+                    <Text style={{ color: '#000' }}>No data Found</Text>
+                    :
+                    <FlatList
+                        data={myDeliveriesData}
+                        renderItem={renderMyDeliveries}
+                        keyExtractor={(item, index) => index}
+                        horizontal={false}
+                        showsVerticalScrollIndicator={false}
+                        removeClippedSubviews={true}
+                        initialNumToRender={5}
+                        numColumns={1}
+                    />
+                }
             </View>
             <View style={styles.buttonwrapper}>
                 <CustomButton label={"Open Calender"} buttonIcon={true} onPress={() => setModalVisible(true)} />

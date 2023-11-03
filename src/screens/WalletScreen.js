@@ -12,6 +12,7 @@ import {
     Dimensions,
     TextInput
 } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Feather from 'react-native-vector-icons/Feather';
 import Toast from 'react-native-toast-message';
@@ -75,6 +76,11 @@ export default function WalletScreen({ navigation }) {
     useEffect(() => {
         fetchProfileDetails();
     }, [])
+    useFocusEffect(
+        React.useCallback(() => {
+            fetchProfileDetails()
+        }, [])
+    )
 
     if (status == 'loading') {
         return (
@@ -110,13 +116,58 @@ export default function WalletScreen({ navigation }) {
             }
             RazorpayCheckout.open(options).then((data) => {
                 // handle success
-                alert(`Success: ${data.razorpay_payment_id}`);
+                //alert(`Success: ${data.razorpay_payment_id}`);
+                updateWalletBalance(data.razorpay_payment_id)
             }).catch((error) => {
                 // handle failure
                 alert(`Error: ${error.code} | ${error.description}`);
             });
         }
 
+    }
+
+    const updateWalletBalance = (trasanction_id) => {
+        const option = {
+            "trasanction_id": trasanction_id,
+            "offerscode": promocode,
+            "amount": amount,
+            "status": 1
+        }
+        AsyncStorage.getItem('userToken', (err, usertoken) => {
+            axios.post(`${API_URL}/public/api/user/pay`,
+                option,
+                {
+                    headers: {
+                        "Authorization": 'Bearer ' + usertoken,
+                        "Content-Type": 'application/json'
+                    },
+                })
+                .then(res => {
+                    console.log(res.data, 'payment data')
+                    if (res.data.st == "200") {
+                        Toast.show({
+                            type: 'success',
+                            text2: res.data.message,
+                            position: 'top',
+                            topOffset: Platform.OS == 'ios' ? 55 : 20
+                        });
+                        fetchProfileDetails()
+                    } else {
+                        Toast.show({
+                            type: 'error',
+                            text2: "Something went wrong",
+                            position: 'top',
+                            topOffset: Platform.OS == 'ios' ? 55 : 20
+                        });
+                    }
+
+                    // setIsLoading(false);
+                })
+                .catch(e => {
+                    console.log(`Promo code error ${e}`)
+                });
+
+        });
     }
 
     const checkPromocode = () => {

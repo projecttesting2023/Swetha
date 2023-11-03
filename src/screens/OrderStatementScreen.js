@@ -74,7 +74,7 @@ const OrderStatementScreen = ({ navigation }) => {
                 notification: true,
                 mediaScannable: true,
                 title: `orderStatement.pdf`,
-                path: `${dirs.DownloadDir}/orderStatement.pdf`,
+                path: `${dirs.DownloadDir}/OrderStatement.pdf`,
             },
         })
             .fetch('GET', url, {})
@@ -204,7 +204,7 @@ const OrderStatementScreen = ({ navigation }) => {
 
     const sharePDF = async () => {
         const pdfUrl = pdfLink; // Replace with your PDF link
-        const filePath = `${RNFetchBlob.fs.dirs.DocumentDir}/orderStatement.pdf`; // Define the file path where the PDF will be saved
+        const filePath = `${RNFetchBlob.fs.dirs.DocumentDir}/OrderStatement.pdf`; // Define the file path where the PDF will be saved
       
         try {
           const response = await RNFetchBlob.config({

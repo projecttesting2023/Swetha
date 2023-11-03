@@ -31,6 +31,7 @@ import { getCategory } from '../store/categorySlice';
 import AnimatedLoader from "react-native-animated-loader";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getBanner } from '../store/bannerSlice';
+import { useFocusEffect } from '@react-navigation/native';
 
 const BannerWidth = Dimensions.get('window').width;
 const ITEM_WIDTH = Math.round(BannerWidth * 0.7)
@@ -55,6 +56,13 @@ export default function HomeScreen({ navigation }) {
     getBanner()
   }, [])
 
+  useFocusEffect(
+    React.useCallback(() => {
+      getCategory()
+      getBanner()
+      setSelectedTab(0)
+    }, [])
+)
 
 
   const getCategory = () => {
@@ -205,7 +213,7 @@ export default function HomeScreen({ navigation }) {
             <Text style={styles.recomendedText3}>₹{item.item.ammount}</Text>
           </View>
         </View>
-      //  </TouchableWithoutFeedback>
+      // </TouchableWithoutFeedback>
     )
   }
 
