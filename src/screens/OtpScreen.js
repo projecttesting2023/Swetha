@@ -7,7 +7,8 @@ import {
     TouchableOpacity,
     TouchableWithoutFeedback,
     StyleSheet,
-    Platform
+    Platform,
+    Alert
 } from 'react-native';
 import OTPInputView from '@twotalltotems/react-native-otp-input'
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -21,6 +22,9 @@ import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-nat
 import { useDispatch, useSelector } from 'react-redux';
 import { getOtpVerify } from '../store/auth/otpVerifySlice';
 import Loader from '../utils/Loader';
+import axios from 'axios';
+import { API_URL } from '@env'
+import DeviceInfo from 'react-native-device-info';
 
 const OtpScreen = ({ navigation, route }) => {
     const dispatch = useDispatch();
@@ -44,40 +48,97 @@ const OtpScreen = ({ navigation, route }) => {
             "phone": route?.params?.phoneno,
             "otp": code
         }
-        if (errors == false) {
-            dispatch(getOtpVerify(option))
-        }
+        // if (errors == false) {
+        //     dispatch(getOtpVerify(option))
+        // }
+        axios.post(`${API_URL}/public/api/userlogin`, option)
+            .then(res => {
+                console.log(res.data)
+                if (res.data.st == '400') {
+                    setIsLoading(false)
+                    Alert.alert('Oops..', res.data.massage, [
+                        {
+                            text: 'Cancel',
+                            onPress: () => console.log('Cancel Pressed'),
+                            style: 'cancel',
+                        },
+                        { text: 'OK', onPress: () => console.log('OK Pressed') },
+                    ]);
+                } else if (res.data.st == '200') {
+                    console.log(res.data, 'data from otp Verify api')
+                    setIsLoading(false)
+                    if (route?.params?.page == 'login') {
+                        login(res.data.token)
+                    } else {
+                        navigation.navigate('HouseDetails', { phoneno: route?.params?.phoneno, usertoken: res.data.token })
+                    }
+                }
+            })
+            .catch(e => {
+                console.log(`user register error ${e}`)
+            });
     }
 
-    const resendOtp = () =>{
-        const option = {
-            "phone": route?.params?.phoneno,
-            "otp": code
-        }
-        if (errors == false) {
-            dispatch(getOtpVerify(option))
-        }
-    }
-
-    useEffect(() => {
-        console.log(otpstatus, 'otpVerifystatus')
-        if (otpstatus == 'success') {
-            console.log(otpVerify, 'data from otp Verify api')
-            setIsLoading(false)
-            if(route?.params?.page == 'login'){
-                login(otpVerify.token)
-            }else{
-                navigation.navigate('HouseDetails', { phoneno: route?.params?.phoneno, usertoken: otpVerify.token })
+    const resendOtp = () => {
+        DeviceInfo.getUniqueId().then((deviceUniqueId) => {
+            const option = {
+                "phone": route?.params?.phoneno,
+                "refcode": '',
+                "flage": 'resendotp',
+                "deviceid": deviceUniqueId
             }
-            
-        } else if (otpstatus == 'loading') {
-            setIsLoading(true)
-        } else if (otpstatus == 'error') {
-            setIsLoading(false)
-            alert('Invalid OTP')
-        }
+            axios.post(`${API_URL}/public/api/userregister`, option)
+                .then(res => {
+                    console.log(res.data)
+                    if (res.data.st == '400') {
+                        setIsLoading(false)
+                        Alert.alert('Oops..', res.data.massage, [
+                            {
+                                text: 'Cancel',
+                                onPress: () => console.log('Cancel Pressed'),
+                                style: 'cancel',
+                            },
+                            { text: 'OK', onPress: () => console.log('OK Pressed') },
+                        ]);
+                    } else if (res.data.st == '200') {
+                        console.log(res.data, 'data from phone Verify api')
+                        setIsLoading(false)
+                        Alert.alert('Okay', res.data.massage, [
+                            {
+                                text: 'Cancel',
+                                onPress: () => console.log('Cancel Pressed'),
+                                style: 'cancel',
+                            },
+                            { text: 'OK', onPress: () => console.log('OK Pressed') },
+                        ]);
+                    }
+                })
+                .catch(e => {
+                    console.log(`user register error ${e}`)
+                });
+        });
 
-    }, [otpstatus])
+    }
+
+    // useEffect(() => {
+    //     console.log(otpstatus, 'otpVerifystatus')
+    //     if (otpstatus == 'success') {
+    //         console.log(otpVerify, 'data from otp Verify api')
+    //         setIsLoading(false)
+    //         if (route?.params?.page == 'login') {
+    //             login(otpVerify.token)
+    //         } else {
+    //             navigation.navigate('HouseDetails', { phoneno: route?.params?.phoneno, usertoken: otpVerify.token })
+    //         }
+
+    //     } else if (otpstatus == 'loading') {
+    //         setIsLoading(true)
+    //     } else if (otpstatus == 'error') {
+    //         setIsLoading(false)
+    //         alert('Invalid OTP')
+    //     }
+
+    // }, [otpstatus])
 
     if (isLoading) {
         return (

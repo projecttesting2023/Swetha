@@ -6,14 +6,15 @@ import { milkImg } from '../utils/Images'
 import CustomButton from '../components/CustomButton'
 import { Calendar, LocaleConfig } from 'react-native-calendars';
 import moment from 'moment';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import Entypo from 'react-native-vector-icons/Entypo';
 import { useDispatch, useSelector } from 'react-redux';
 import { getMyDeliveries } from '../store/delivery/myDeliveriesSlice';
-import {getSearchDeliveries} from '../store/delivery/searchByDateSlice';
+import { getSearchDeliveries } from '../store/delivery/searchByDateSlice';
 import Loader from '../utils/Loader';
+import { API_URL } from '@env'
 
-
-const MyDeliveryScreen = ({ navigation }) => { 
+const MyDeliveryScreen = ({ navigation }) => {
     const dispatch = useDispatch();
     const { data: myDeliveries, status } = useSelector(state => state.myDeliveries)
     const { data: searchDelivery, searchstatus } = useSelector(state => state.searchByDate)
@@ -24,21 +25,23 @@ const MyDeliveryScreen = ({ navigation }) => {
     const [isLoading, setIsLoading] = useState(true)
 
     const fetchMyDelivery = () => {
-        dispatch(getMyDeliveries())
+        AsyncStorage.getItem('userToken', (err, usertoken) => {
+            dispatch(getMyDeliveries(usertoken))
+        });
     }
     useEffect(() => {
         fetchMyDelivery();
-    }, []) 
+    }, [])
 
     useEffect(() => {
         //console.log(status, 'my delivery status')
-       if (status == 'success') {
-        setMyDeliveriesData(myDeliveries)
-           setIsLoading(false)
-       } else if (status == 'loading') {
-           setIsLoading(true)
-       }
-   }, [status])
+        if (status == 'success') {
+            setMyDeliveriesData(myDeliveries)
+            setIsLoading(false)
+        } else if (status == 'loading') {
+            setIsLoading(true)
+        }
+    }, [status])
 
     if (isLoading) {
         return (
@@ -50,24 +53,33 @@ const MyDeliveryScreen = ({ navigation }) => {
 
         return (
             <View style={styles.itemlist}>
-                <Image source={milkImg} style={styles.productimage} />
+                <Image source={{ uri: `${API_URL}/public/${item?.thumbnail_img}` }} style={styles.productimage} />
                 <View style={styles.productdescView}>
-                    <Text style={styles.productTitle}>A2 Buffalo Milk Pouch</Text>
-                    <Text style={styles.productdesc}>500 ML POUCH </Text>
-                    <Text style={styles.productPrice}>₹44.00  X 2</Text>
+                    <Text style={styles.productTitle}>{item.name}</Text>
+                    <Text style={styles.productdesc}>{item.volume} </Text>
+                    <Text style={styles.productPrice}>₹{item.order_ammount}  X {item.quantity}</Text>
                     <View style={{ flexDirection: 'row' }}>
-                        <Text style={styles.daliveryDate}>Delivery by 11 PM</Text>
+                        <Text style={styles.daliveryDate}>Delivery by {item.date}</Text>
                     </View>
                 </View>
             </View>
         )
     }
-   
-    const searchByDate = async() => {
-        console.log(selected);
-        await dispatch(getSearchDeliveries(5))
-        console.log(searchDelivery,'searchDeliverysearchDelivery')
-        setMyDeliveriesData([searchDelivery])
+
+    const searchByDate = async () => {
+        //console.log(moment(selected).format("DD-MM-YYYY"));
+        // await dispatch(getSearchDeliveries(5))
+        // console.log(searchDelivery, 'searchDeliverysearchDelivery')
+        // setMyDeliveriesData([searchDelivery])
+        //console.log(myDeliveriesData, 'iiiiiiiiiiiiiiiiiii')
+        const searchDate = moment(selected).format("DD-MM-YYYY");
+        const data = myDeliveriesData;
+        const result = data.filter(item => item.date === searchDate);
+
+        //console.log(result,'searched result');
+        setModalVisible(false)
+        setMyDeliveriesData(result)
+
     }
 
     return (

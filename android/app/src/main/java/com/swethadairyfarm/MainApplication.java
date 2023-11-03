@@ -11,6 +11,7 @@ import com.facebook.soloader.SoLoader;
 import java.util.List;
 import com.facebook.react.shell.MainReactPackage;
 import com.christopherdro.htmltopdf.RNHTMLtoPDFPackage;
+import com.rnfs.RNFSPackage;
 
 public class MainApplication extends Application implements ReactApplication {
 
@@ -29,6 +30,7 @@ public class MainApplication extends Application implements ReactApplication {
           // packages.add(new MyReactNativePackage());
           new MainReactPackage();
           new RNHTMLtoPDFPackage();
+          new RNFSPackage();
           return packages;
         }
 

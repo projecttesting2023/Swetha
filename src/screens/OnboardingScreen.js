@@ -32,7 +32,7 @@ const OnboardingScreen = ({ navigation }) => {
       <TouchableOpacity style={styles.buttonView} onPress={()=>navigation.navigate('Register')}>
         <Text style={styles.buttonText}>Sign Up</Text>
       </TouchableOpacity>
-      <Text style={styles.skipText}>I just want to browse</Text>
+      {/* <Text style={styles.skipText}>I just want to browse</Text> */}
     </LinearGradient>
 
     // </SafeAreaView>

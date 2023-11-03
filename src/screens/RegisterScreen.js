@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { SafeAreaView, View, Text, TouchableOpacity, StyleSheet, TextInput } from 'react-native';
+import { SafeAreaView, View, Text, TouchableOpacity, StyleSheet, TextInput, Alert } from 'react-native';
 import * as yup from 'yup';
 import { Formik } from 'formik'
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -10,6 +10,9 @@ import CustomButton from '../components/CustomButton';
 import { useDispatch, useSelector } from 'react-redux';
 import { getPhoneVerify } from '../store/auth/phoneVerifySlice';
 import Loader from '../utils/Loader';
+import DeviceInfo from 'react-native-device-info';
+import axios from 'axios';
+import { API_URL } from '@env'
 
 const schema = yup.object().shape({
   number: yup
@@ -27,35 +30,71 @@ const RegisterScreen = ({ navigation }) => {
   const [number, onChangeNumber] = React.useState('');
   const [referral, setReferral] = React.useState('');
   const [isLoading, setIsLoading] = useState(false)
+  const [deviceId, setDeviceId] = useState('')
 
   const handleSubmit = (values) => {
     setIsLoading(true)
     console.log(values)
     if (values.number) {
       const option = {
-          "phone": values.number,
-          "refcode": values.referral,
-          "flage" :'register'
-        }
-      dispatch(getPhoneVerify(option))
+        "phone": values.number,
+        "refcode": values.referral,
+        "flage": 'register',
+        "deviceid": deviceId
+      }
+      console.log(option, 'payload before register')
+      // dispatch(getPhoneVerify(option))
+      axios.post(`${API_URL}/public/api/userregister`, option)
+        .then(res => {
+          console.log(res.data)
+          if (res.data.st == '400') {
+            setIsLoading(false)
+            Alert.alert('Oops..', res.data.massage, [
+              {
+                text: 'Cancel',
+                onPress: () => console.log('Cancel Pressed'),
+                style: 'cancel',
+              },
+              { text: 'OK', onPress: () => console.log('OK Pressed') },
+            ]);
+          } else if (res.data.st == '200') {
+            console.log(res.data, 'data from phone Verify api')
+            setIsLoading(false)
+            navigation.push('Otp', { phoneno: res.data.phone, page: 'register' })
+          }
+        })
+        .catch(e => {
+          console.log(`user register error ${e}`)
+        });
     }
   }
 
-  useEffect(() => {
-    //console.log(status, 'phoneVerifystatus')
-    if (status == 'success') {
-      console.log(phoneVerify,'data from register api')
-      setIsLoading(false)
-      navigation.push('Otp', { phoneno: phoneVerify.phone,page:'register' })
-    } else if (status == 'loading') {
-      setIsLoading(true)
-    } else if(status == 'error'){
-      setIsLoading(false)
-      //console.log(phoneVerify,'data from register api')
-      alert('Something went wrong')
-    }
+  const getDeviceInfo = () => {
+    DeviceInfo.getUniqueId().then((deviceUniqueId) => {
+      console.log(deviceUniqueId)
+      setDeviceId(deviceUniqueId)
+    });
+  }
 
-  }, [status])
+  useEffect(() => {
+    getDeviceInfo()
+  }, [])
+
+  // useEffect(() => {
+  //   //console.log(status, 'phoneVerifystatus')
+  //   if (status == 'success') {
+  //     console.log(phoneVerify,'data from register api')
+  //     setIsLoading(false)
+  //     navigation.push('Otp', { phoneno: phoneVerify.phone,page:'register' })
+  //   } else if (status == 'loading') {
+  //     setIsLoading(true)
+  //   } else if(status == 'error'){
+  //     setIsLoading(false)
+  //     //console.log(phoneVerify,'data from register api')
+  //     alert('Something went wrong')
+  //   }
+
+  // }, [status])
 
   if (isLoading) {
     return (
@@ -188,7 +227,7 @@ const styles = StyleSheet.create({
   input: {
     fontSize: responsiveFontSize(2),
     width: responsiveWidth(70),
-    color:'#808080'
+    color: '#808080'
   }
 
 });

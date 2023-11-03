@@ -18,7 +18,7 @@ function App() {
         await messaging().registerDeviceForRemoteMessages();
       }
       const token = await messaging().getToken();
-      //console.log(token);
+      console.log(token,'fcm token');
     } catch (e) {
       console.log(e);
     }

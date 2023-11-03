@@ -18,8 +18,7 @@ import BannerSlider from '../components/BannerSlider';
 import { windowWidth } from '../utils/Dimensions';
 
 import { AuthContext } from '../context/AuthContext';
-import { WHATSAPP_LINK,API_URL } from '@env'
-
+import { WHATSAPP_LINK, API_URL } from '@env'
 import { useDispatch, useSelector } from 'react-redux';
 
 import { categoryImg, milk2Img, milkImg, whatsappImg } from '../utils/Images';
@@ -56,6 +55,8 @@ export default function HomeScreen({ navigation }) {
     getBanner()
   }, [])
 
+
+
   const getCategory = () => {
     AsyncStorage.getItem('userToken', (err, usertoken) => {
       console.log(usertoken, 'user token')
@@ -66,17 +67,18 @@ export default function HomeScreen({ navigation }) {
         },
       })
         .then(res => {
-          console.log(res.data.categorie, 'all category')
+          //console.log(res.data.categorie, 'all category')
           let obj = res.data.categorie;
           //console.log(obj[Object.keys(obj)[0]])
           let first_element = obj[Object.keys(obj)[0]];
-          //console.log(first_element.id)
+          console.log(first_element.id, 'first category id')
           getProduct(first_element.id)
           setCategoryData(res.data.categorie)
           setIsLoading(false);
         })
         .catch(e => {
           console.log(`Category error ${e}`)
+
         });
 
     });
@@ -192,8 +194,9 @@ export default function HomeScreen({ navigation }) {
   }
 
   const renderRecomended = (item, index) => {
+    //console.log(item)
     return (
-      <TouchableWithoutFeedback onPress={() => navigation.navigate('ProductDetailsScreen', { product_id: item.item.id })}>
+      // <TouchableWithoutFeedback onPress={() => navigation.navigate('ProductDetailsScreen', { product_id: item?.item.id })}>
         <View style={styles.singleRecomendedView}>
           <View style={[styles.recomendedImageView]}>
             <Image source={{ uri: `${API_URL}/public/${item?.item.thumbnail_img}` }} style={styles.recomendedimage} />
@@ -202,7 +205,7 @@ export default function HomeScreen({ navigation }) {
             <Text style={styles.recomendedText3}>₹{item.item.ammount}</Text>
           </View>
         </View>
-      </TouchableWithoutFeedback>
+      //  </TouchableWithoutFeedback>
     )
   }
 

@@ -120,6 +120,8 @@ dependencies {
     implementation platform('com.google.firebase:firebase-bom:32.3.1')  //add for firebase push notification
 
     implementation project(':react-native-html-to-pdf') // add for html to pdf
+
+    implementation project(':react-native-fs')
     
     debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}")
     debugImplementation("com.facebook.flipper:flipper-network-plugin:${FLIPPER_VERSION}") {

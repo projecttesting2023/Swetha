@@ -31,9 +31,14 @@ const myDeliveriesSlice = createSlice({
 export const { fetchMyDeliveries } = myDeliveriesSlice.actions;
 export default myDeliveriesSlice.reducer;
 
-export const getMyDeliveries = createAsyncThunk('myDeliveries/get', async () => {
-    const res = await axios.get('https://fakestoreapi.com/products');
-    const result = await res.data;
+export const getMyDeliveries = createAsyncThunk('myDeliveries/get', async (usertoken) => {
+    const res = await axios.get('http://162.215.253.89/PCP2023/public/api/user/orderview', {
+        headers: {
+            "Authorization": 'Bearer ' + usertoken,
+            "Content-Type": 'application/json'
+        },
+    });
+    const result = await res.data.NonCompleted_orders;
     return result;
 
 })
