@@ -48,6 +48,11 @@ const HomeStack = () => {
         component={WalletHistoryScreen}
         options={{ headerShown: false }}
       />
+       <Stack.Screen
+        name="ProductDetailsScreen"
+        component={ProductDetailsScreen}
+        options={{ headerShown: false }}
+      />
     </Stack.Navigator>
   );
 };
@@ -60,11 +65,11 @@ const ProductStack = () => {
         component={ProductScreen}
         options={{ headerShown: false }}
       />
-      <Stack.Screen
+      {/* <Stack.Screen
         name="ProductDetailsScreen"
         component={ProductDetailsScreen}
         options={{ headerShown: false }}
-      />
+      /> */}
     </Stack.Navigator>
   )
 

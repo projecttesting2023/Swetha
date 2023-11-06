@@ -45,6 +45,8 @@ const LoginScreen = ({ navigation }) => {
         "deviceid": deviceId
       }
       //dispatch(getPhoneVerify(option))
+      //console.log(option,'payload for userregister')
+      //console.log(`${API_URL}/public/api/userregister`)
       axios.post(`${API_URL}/public/api/userregister`, option)
         .then(res => {
           console.log(res.data)

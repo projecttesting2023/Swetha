@@ -17,7 +17,7 @@ import RNFS from 'react-native-fs';
 import Share from 'react-native-share';
 import RNFetchBlob from 'rn-fetch-blob';
 import Toast from 'react-native-toast-message';
-import ReactNativeBlobUtil from 'react-native-blob-util';
+
 
 const OrderStatementScreen = ({ navigation }) => {
     const [startDay, setStartDay] = useState(null);
@@ -73,8 +73,8 @@ const OrderStatementScreen = ({ navigation }) => {
                 useDownloadManager: true,
                 notification: true,
                 mediaScannable: true,
-                title: `orderStatement.pdf`,
-                path: `${dirs.DownloadDir}/OrderStatement.pdf`,
+                title: `orderstatement.pdf`,
+                path: `${dirs.DownloadDir}/orderstatement.pdf`,
             },
         })
             .fetch('GET', url, {})
@@ -204,7 +204,7 @@ const OrderStatementScreen = ({ navigation }) => {
 
     const sharePDF = async () => {
         const pdfUrl = pdfLink; // Replace with your PDF link
-        const filePath = `${RNFetchBlob.fs.dirs.DocumentDir}/OrderStatement.pdf`; // Define the file path where the PDF will be saved
+        const filePath = `${RNFetchBlob.fs.dirs.DocumentDir}/orderstatement.pdf`; // Define the file path where the PDF will be saved
       
         try {
           const response = await RNFetchBlob.config({

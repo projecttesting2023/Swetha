@@ -9,16 +9,16 @@ import Toast from 'react-native-toast-message';
 import OfflineNotice from './src/utils/OfflineNotice'
 // import PushController from './src/utils/PushController';
 import messaging from '@react-native-firebase/messaging';
-
+// import PushNotificationIOS from '@react-native-community/push-notification-ios';
 
 function App() {
   const getFCMToken = async () => {
     try {
-      if(Platform.OS == 'android'){
+      if (Platform.OS == 'android') {
         await messaging().registerDeviceForRemoteMessages();
       }
       const token = await messaging().getToken();
-      console.log(token,'fcm token');
+      console.log(token, 'fcm token');
     } catch (e) {
       console.log(e);
     }
@@ -31,14 +31,23 @@ function App() {
       'Each child in a list should have a unique "key" prop',
       'VirtualizedLists should never be nested'
     ]);
+    // if (Platform.OS == 'ios') {
+    //   PushNotificationIOS.register();
+    // }
     getFCMToken()
 
-    // if (Platform.OS == 'android') {
+    if (Platform.OS == 'android') {
       /* this is app foreground notification */
       const unsubscribe = messaging().onMessage(async remoteMessage => {
         Alert.alert('A new FCM message arrived!', JSON.stringify(remoteMessage));
-       });
+      });
       return unsubscribe;
+    } 
+    // else {
+    //   PushNotificationIOS.addEventListener('notification', (notification) => {
+    //     // Handle the notification
+    //     Alert.alert('A new FCM message arrived!', JSON.stringify(notification));
+    //   });
     // }
 
 

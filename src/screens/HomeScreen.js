@@ -31,7 +31,7 @@ import { getCategory } from '../store/categorySlice';
 import AnimatedLoader from "react-native-animated-loader";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getBanner } from '../store/bannerSlice';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, StackActions } from '@react-navigation/native';
 
 const BannerWidth = Dimensions.get('window').width;
 const ITEM_WIDTH = Math.round(BannerWidth * 0.7)
@@ -62,7 +62,7 @@ export default function HomeScreen({ navigation }) {
       getBanner()
       setSelectedTab(0)
     }, [])
-)
+  )
 
 
   const getCategory = () => {
@@ -126,7 +126,7 @@ export default function HomeScreen({ navigation }) {
           },
         })
         .then(res => {
-          console.log(res.data.product, 'category wise product')
+          //console.log(res.data.product, 'category wise product')
           setRecomended(res.data.product)
           setIsLoading(false);
         })
@@ -187,6 +187,11 @@ export default function HomeScreen({ navigation }) {
     setSelectedTab(index)
     getProduct(id)
   }
+  const changeToNextScreen = (id) => {
+    console.log(id)
+    navigation.push('ProductDetailsScreen', { product_id:  id})
+  }
+
 
   const renderCategory = (item, index) => {
     return (
@@ -205,6 +210,7 @@ export default function HomeScreen({ navigation }) {
     //console.log(item)
     return (
       // <TouchableWithoutFeedback onPress={() => navigation.navigate('ProductDetailsScreen', { product_id: item?.item.id })}>
+      <TouchableWithoutFeedback onPress={() => changeToNextScreen(item?.item.id)}>
         <View style={styles.singleRecomendedView}>
           <View style={[styles.recomendedImageView]}>
             <Image source={{ uri: `${API_URL}/public/${item?.item.thumbnail_img}` }} style={styles.recomendedimage} />
@@ -213,7 +219,7 @@ export default function HomeScreen({ navigation }) {
             <Text style={styles.recomendedText3}>₹{item.item.ammount}</Text>
           </View>
         </View>
-      // </TouchableWithoutFeedback>
+      </TouchableWithoutFeedback>
     )
   }
 

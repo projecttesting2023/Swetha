@@ -7399,7 +7399,7 @@
   "resolved" "https://registry.npmjs.org/react-native-banner-carousel/-/react-native-banner-carousel-1.0.3.tgz"
   "version" "1.0.3"
 
-"react-native-blob-util@^0.19.2", "react-native-blob-util@>=0.13.7":
+"react-native-blob-util@>=0.13.7":
   "integrity" "sha512-dU6Tq0SqdWpW5Csk64PrskmiYGn3HtaNsob8/PH2D1DjDZTvv2WjSyhgE+hqSgnxljkj4ZlNM73RxZBYrinQGA=="
   "resolved" "https://registry.npmjs.org/react-native-blob-util/-/react-native-blob-util-0.19.2.tgz"
   "version" "0.19.2"

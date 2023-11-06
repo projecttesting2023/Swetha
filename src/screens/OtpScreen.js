@@ -8,7 +8,8 @@ import {
     TouchableWithoutFeedback,
     StyleSheet,
     Platform,
-    Alert
+    Alert,
+    Keyboard
 } from 'react-native';
 import OTPInputView from '@twotalltotems/react-native-otp-input'
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -36,6 +37,10 @@ const OtpScreen = ({ navigation, route }) => {
     const { login, userToken } = useContext(AuthContext);
 
     const inputRef = useRef();
+
+    // useEffect(()=>{
+    //     Keyboard.open()
+    // },[])
 
     const onChangeCode = (code) => {
         setOtp(code)

@@ -8,6 +8,7 @@ import RegisterScreen from '../screens/RegisterScreen';
 import HouseDetailsScreen from '../screens/HouseDetailsScreen';
 import ProfileInformationScreen from '../screens/ProfileInformationScreen';
 import VerifyDetailsScreen from '../screens/VerifyDetailsScreen'
+// import ProductDetailsScreen from '../screens/ProductDetailsScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -21,6 +22,7 @@ const AuthStack = () => {
       <Stack.Screen name="HouseDetails" component={HouseDetailsScreen} />
       <Stack.Screen name="ProfileInformation" component={ProfileInformationScreen} />
       <Stack.Screen name="VerifyDetails" component={VerifyDetailsScreen} />
+      {/* <Stack.Screen name="ProductDetailsScreen" component={ProductDetailsScreen} /> */}
     </Stack.Navigator>
   );
 };

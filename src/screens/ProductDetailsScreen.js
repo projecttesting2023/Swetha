@@ -36,6 +36,7 @@ import Toast from 'react-native-toast-message';
 const BannerWidth = Dimensions.get('window').width;
 const ITEM_WIDTH = Math.round(BannerWidth * 0.7)
 const { height, width } = Dimensions.get('screen')
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function ProductDetailsScreen({ navigation, route }) {
 
@@ -72,7 +73,7 @@ export default function ProductDetailsScreen({ navigation, route }) {
 
     // Get the next day
     const nextDay = currentDate.add(2, 'days');
-    
+
     // Format the next day as a string (if needed)
     const formattedNextDay = nextDay.format('YYYY-MM-DD');
 
@@ -107,6 +108,12 @@ export default function ProductDetailsScreen({ navigation, route }) {
     useEffect(() => {
         fetchProducts();
     }, [])
+
+    useFocusEffect(
+        React.useCallback(() => {
+            fetchProducts();
+        }, [])
+    )
 
     if (isLoading) {
         return (
@@ -346,7 +353,7 @@ export default function ProductDetailsScreen({ navigation, route }) {
 
         AsyncStorage.getItem('userToken', (err, usertoken) => {
             axios.post(`${API_URL}/public/api/user/placeorder`,
-            option,
+                option,
                 {
                     headers: {
                         "Authorization": 'Bearer ' + usertoken,
