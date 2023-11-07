@@ -59,9 +59,8 @@ export default function FaqScreen({ navigation }) {
                 style={[styles.header, isActive ? styles.active : styles.inactive]}
                 transition="backgroundColor"
             >
-                <View style={{  flexDirection: 'row',alignItems:'center', justifyContent: 'space-between',paddingHorizontal:10,paddingVertical:10}}>
-                    <Text style={styles.headerText}>How is sids farm different
-other dairy brands?</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 10, paddingVertical: 10 }}>
+                    <Text style={styles.headerText}>{section.title}</Text>
                     {isActive ?
                         <Image source={accordianminusImg} style={styles.iconimg} />
                         :
@@ -80,10 +79,15 @@ other dairy brands?</Text>
                 transition="backgroundColor"
             >
 
-                <View style={{ paddingHorizontal:10,paddingVertical:10,backgroundColor:'#E6F6FB' }}>
-                    <Animatable.Text animation={isActive ? 'bounceIn' : undefined}>
-                    Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make.
+                <View style={{ paddingHorizontal: 10, paddingVertical: 10, backgroundColor: '#E6F6FB' }}>
+                    <Animatable.Text animation={isActive ? 'zoomIn' : undefined}>
+                        {section.body}Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make.
                     </Animatable.Text>
+                    <Animatable.Image
+                        animation={isActive ? 'zoomIn' : undefined}
+                        style={{height:responsiveHeight(10),width:responsiveWidth(85),resizeMode:'cover',marginTop:20}}
+                        source={{uri:section.imgUrl}}
+                    />
                 </View>
 
             </Animatable.View>

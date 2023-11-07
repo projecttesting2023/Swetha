@@ -45,6 +45,7 @@
 		8BF93D7FB1D3573762B19669 /* Pods-SwethaDairyFarm-SwethaDairyFarmTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwethaDairyFarm-SwethaDairyFarmTests.release.xcconfig"; path = "Target Support Files/Pods-SwethaDairyFarm-SwethaDairyFarmTests/Pods-SwethaDairyFarm-SwethaDairyFarmTests.release.xcconfig"; sourceTree = "<group>"; };
 		99BA2EBC01CE800491F4543B /* Pods_SwethaDairyFarm_SwethaDairyFarmTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SwethaDairyFarm_SwethaDairyFarmTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		BD783CF12A35A080CC0879AF /* Pods-SwethaDairyFarmTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwethaDairyFarmTests.release.xcconfig"; path = "Target Support Files/Pods-SwethaDairyFarmTests/Pods-SwethaDairyFarmTests.release.xcconfig"; sourceTree = "<group>"; };
+		CE42D69E2AFA247500ABB74E /* SwethaDairyFarm.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = SwethaDairyFarm.entitlements; path = SwethaDairyFarm/SwethaDairyFarm.entitlements; sourceTree = "<group>"; };
 		CE72B8FD2AD7E6BE00AF1BAB /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		CE7C31332AB0378400D13456 /* FontAwesome6_Brands.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = FontAwesome6_Brands.ttf; sourceTree = "<group>"; };
 		CE7C31342AB0378400D13456 /* MaterialCommunityIcons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = MaterialCommunityIcons.ttf; sourceTree = "<group>"; };
@@ -109,6 +110,7 @@
 		13B07FAE1A68108700A75B9A /* SwethaDairyFarm */ = {
 			isa = PBXGroup;
 			children = (
+				CE42D69E2AFA247500ABB74E /* SwethaDairyFarm.entitlements */,
 				CE72B8FD2AD7E6BE00AF1BAB /* GoogleService-Info.plist */,
 				CE7C31322AB0369400D13456 /* Fonts */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
@@ -553,7 +555,9 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = SwethaDairyFarm/SwethaDairyFarm.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = CJLR47NAJ9;
 				ENABLE_BITCODE = NO;
 				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = i386;
 				GCC_NO_COMMON_BLOCKS = NO;
@@ -582,7 +586,9 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = SwethaDairyFarm/SwethaDairyFarm.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = CJLR47NAJ9;
 				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = i386;
 				GCC_NO_COMMON_BLOCKS = NO;
 				INFOPLIST_FILE = SwethaDairyFarm/Info.plist;

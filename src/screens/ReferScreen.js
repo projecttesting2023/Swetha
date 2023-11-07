@@ -29,6 +29,7 @@ import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-nat
 import CustomHeader from '../components/CustomHeader';
 import data from '../model/data'
 import CustomButton from '../components/CustomButton';
+import Share from 'react-native-share';
 
 const BannerWidth = Dimensions.get('window').width;
 const ITEM_WIDTH = Math.round(BannerWidth * 0.7)
@@ -51,13 +52,26 @@ export default function ReferScreen({ navigation }) {
         fetchProducts();
     }, [])
 
+    const shareToOthers = () => {
+        let options = {
+            title: 'React Native Share Example',
+            message: 'Check out this cool app!',
+            url: 'https://www.example.com',
+        }
+        Share.open(options)
+            .then((res) => {
+                console.log(res);
+            })
+            .catch((err) => {
+                err && console.log(err);
+            });
+    }
+
     if (status == 'loading') {
         return (
             <Loader />
         )
     }
-
-
 
     return (
         <SafeAreaView style={styles.Container}>
@@ -76,7 +90,7 @@ export default function ReferScreen({ navigation }) {
                 <View style={styles.buttonwrapper}>
                     <CustomButton label={"Share my referral link"}
                         comingFrom={''}
-                        onPress={null}
+                        onPress={() => shareToOthers()}
                     />
                 </View>
             </ScrollView>

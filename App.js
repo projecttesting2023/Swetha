@@ -14,9 +14,9 @@ import messaging from '@react-native-firebase/messaging';
 function App() {
   const getFCMToken = async () => {
     try {
-      if (Platform.OS == 'android') {
+      // if (Platform.OS == 'android') {
         await messaging().registerDeviceForRemoteMessages();
-      }
+      // }
       const token = await messaging().getToken();
       console.log(token, 'fcm token');
     } catch (e) {

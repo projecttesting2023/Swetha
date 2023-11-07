@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { SafeAreaView, View, Text, TouchableOpacity, StyleSheet, TextInput, Alert } from 'react-native';
+import { SafeAreaView, View, Text, TouchableOpacity, StyleSheet, TextInput, Alert, Platform } from 'react-native';
 
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Logo from '../assets/images/misc/logo.svg';
@@ -128,7 +128,7 @@ const LoginScreen = ({ navigation }) => {
                 onChangeText={handleChange('number')}
                 onBlur={handleBlur('number')}
                 placeholder="Enter 10 digit mobile no."
-                keyboardType="numeric"
+                keyboardType={Platform.OS == 'android'?"numeric":"default"}
                 placeholderTextColor="#808080"
               //letterSpacing={2}
               />

@@ -55,13 +55,13 @@ export default function ProductDetailsScreen({ navigation, route }) {
     const [altopen, setaltOpen] = useState(false)
     const [datePlaceholder2, setDatePlaceholder2] = useState('Select a date')
 
-    const [sundayQty, setSundayQty] = useState(1)
-    const [mondayQty, setMondayQty] = useState(1)
-    const [tuesdayQty, setTuesdayQty] = useState(1)
-    const [wednesdayQty, setWednesdayQty] = useState(1)
-    const [thursdayQty, setThursdayQty] = useState(1)
-    const [fridayQty, setFridayQty] = useState(1)
-    const [satardayQty, setSatardayQty] = useState(1)
+    const [sundayQty, setSundayQty] = useState(0)
+    const [mondayQty, setMondayQty] = useState(0)
+    const [tuesdayQty, setTuesdayQty] = useState(0)
+    const [wednesdayQty, setWednesdayQty] = useState(0)
+    const [thursdayQty, setThursdayQty] = useState(0)
+    const [fridayQty, setFridayQty] = useState(0)
+    const [satardayQty, setSatardayQty] = useState(0)
 
     const [startingDayQty, setStartingDayQty] = useState(1)
     const [succeedingDayQty, setSucceedingDayQty] = useState(1)
@@ -206,111 +206,121 @@ export default function ProductDetailsScreen({ navigation, route }) {
         // console.log(fridayQty, 'fridayQty')
         // console.log(satardayQty, 'satardayQty')
         // console.log(moment(date2).format("DD-MM-YYYY"), 'date')
-
-        var option = []
-        if (sundayQty != 0) {
-            option.push({
-                "product_id": currentProductId,
-                "quantity": sundayQty,
-                "date": moment(repeatingdate).format("DD-MM-YYYY"),
-                "product_subscription": 7,
-                "product_days": "sun"
-            })
-        }
-        if (mondayQty != 0) {
-            option.push({
-                "product_id": currentProductId,
-                "quantity": mondayQty,
-                "date": moment(repeatingdate).format("DD-MM-YYYY"),
-                "product_subscription": 7,
-                "product_days": "mon"
-            })
-        }
-        if (tuesdayQty != 0) {
-            option.push({
-                "product_id": currentProductId,
-                "quantity": tuesdayQty,
-                "date": moment(repeatingdate).format("DD-MM-YYYY"),
-                "product_subscription": 7,
-                "product_days": "tue"
-            })
-        }
-        if (wednesdayQty != 0) {
-            option.push({
-                "product_id": currentProductId,
-                "quantity": wednesdayQty,
-                "date": moment(repeatingdate).format("DD-MM-YYYY"),
-                "product_subscription": 7,
-                "product_days": "wed"
-            })
-        }
-        if (thursdayQty != 0) {
-            option.push({
-                "product_id": currentProductId,
-                "quantity": thursdayQty,
-                "date": moment(repeatingdate).format("DD-MM-YYYY"),
-                "product_subscription": 7,
-                "product_days": "thu"
-            })
-        }
-        if (fridayQty != 0) {
-            option.push({
-                "product_id": currentProductId,
-                "quantity": fridayQty,
-                "date": moment(repeatingdate).format("DD-MM-YYYY"),
-                "product_subscription": 7,
-                "product_days": "fri"
-            })
-        }
-        if (satardayQty != 0) {
-            option.push({
-                "product_id": currentProductId,
-                "quantity": satardayQty,
-                "date": moment(repeatingdate).format("DD-MM-YYYY"),
-                "product_subscription": 7,
-                "product_days": "sat"
-            })
-        }
-        let payloadData = {
-            "orders": option
-        }
-        console.log(payloadData, 'mmmmmmmmmmmmmmmmmmmmmm')
-
-        AsyncStorage.getItem('userToken', (err, usertoken) => {
-            axios.post(`${API_URL}/public/api/user/placeorder`,
-                payloadData,
-                {
-                    headers: {
-                        "Authorization": 'Bearer ' + usertoken,
-                        "Content-Type": 'application/json'
-                    },
+        let today_date = new Date();
+        if (moment(repeatingdate).format("DD-MM-YYYY") == moment(today_date).format("DD-MM-YYYY")) {
+            Toast.show({
+                type: 'info',
+                text2: "You can not choose today's date",
+                position: 'top',
+                topOffset: Platform.OS == 'ios' ? 55 : 20
+            });
+        } else {
+            var option = []
+            if (sundayQty != 0) {
+                option.push({
+                    "product_id": currentProductId,
+                    "quantity": sundayQty,
+                    "date": moment(repeatingdate).format("DD-MM-YYYY"),
+                    "product_subscription": 7,
+                    "product_days": "sun"
                 })
-                .then(res => {
-                    console.log(res.data, 'place order')
-                    if (res.data.st == '200') {
-                        setModalVisible(false)
-                        Toast.show({
-                            type: 'success',
-                            text2: res.data.orders.message,
-                            position: 'top',
-                            topOffset: Platform.OS == 'ios' ? 55 : 20
-                        });
-                    } else if (res.data.st == '400') {
-                        setModalVisible(false)
-                        Toast.show({
-                            type: 'error',
-                            text2: res.data.orders[0].error,
-                            position: 'top',
-                            topOffset: Platform.OS == 'ios' ? 55 : 20
-                        });
-                    }
-
+            }
+            if (mondayQty != 0) {
+                option.push({
+                    "product_id": currentProductId,
+                    "quantity": mondayQty,
+                    "date": moment(repeatingdate).format("DD-MM-YYYY"),
+                    "product_subscription": 7,
+                    "product_days": "mon"
                 })
-                .catch(e => {
-                    console.log(`place order error ${e}`)
-                });
+            }
+            if (tuesdayQty != 0) {
+                option.push({
+                    "product_id": currentProductId,
+                    "quantity": tuesdayQty,
+                    "date": moment(repeatingdate).format("DD-MM-YYYY"),
+                    "product_subscription": 7,
+                    "product_days": "tue"
+                })
+            }
+            if (wednesdayQty != 0) {
+                option.push({
+                    "product_id": currentProductId,
+                    "quantity": wednesdayQty,
+                    "date": moment(repeatingdate).format("DD-MM-YYYY"),
+                    "product_subscription": 7,
+                    "product_days": "wed"
+                })
+            }
+            if (thursdayQty != 0) {
+                option.push({
+                    "product_id": currentProductId,
+                    "quantity": thursdayQty,
+                    "date": moment(repeatingdate).format("DD-MM-YYYY"),
+                    "product_subscription": 7,
+                    "product_days": "thu"
+                })
+            }
+            if (fridayQty != 0) {
+                option.push({
+                    "product_id": currentProductId,
+                    "quantity": fridayQty,
+                    "date": moment(repeatingdate).format("DD-MM-YYYY"),
+                    "product_subscription": 7,
+                    "product_days": "fri"
+                })
+            }
+            if (satardayQty != 0) {
+                option.push({
+                    "product_id": currentProductId,
+                    "quantity": satardayQty,
+                    "date": moment(repeatingdate).format("DD-MM-YYYY"),
+                    "product_subscription": 7,
+                    "product_days": "sat"
+                })
+            }
+            let payloadData = {
+                "orders": option
+            }
+            console.log(payloadData, 'mmmmmmmmmmmmmmmmmmmmmm')
 
-        });
+            AsyncStorage.getItem('userToken', (err, usertoken) => {
+                axios.post(`${API_URL}/public/api/user/placeorder`,
+                    payloadData,
+                    {
+                        headers: {
+                            "Authorization": 'Bearer ' + usertoken,
+                            "Content-Type": 'application/json'
+                        },
+                    })
+                    .then(res => {
+                        console.log(res.data, 'place order')
+                        if (res.data.st == '200') {
+                            setModalVisible(false)
+                            Toast.show({
+                                type: 'success',
+                                text2: res.data.orders.message,
+                                position: 'top',
+                                topOffset: Platform.OS == 'ios' ? 55 : 20
+                            });
+                        } else if (res.data.st == '400') {
+                            setModalVisible(false)
+                            Toast.show({
+                                type: 'error',
+                                text2: res.data.orders[0].error,
+                                position: 'top',
+                                topOffset: Platform.OS == 'ios' ? 55 : 20
+                            });
+                        }
+
+                    })
+                    .catch(e => {
+                        console.log(`place order error ${e}`)
+                    });
+
+            });
+        }
+
 
     }
 
@@ -318,74 +328,85 @@ export default function ProductDetailsScreen({ navigation, route }) {
         console.log(startingDayQty, 'startingDayQty')
         console.log(succeedingDayQty, 'succeedingDayQty')
         console.log(moment(altdate).format("DD-MM-YYYY"), 'altdate')
-        const option = {
-            "orders": [
-                {
-                    "product_id": currentProductId,
-                    "quantity": startingDayQty,
-                    "date": moment(altdate).format("DD-MM-YYYY"),
-                    "product_subscription": 4,
-                    "product_days": "0"
-                },
-                {
-                    "product_id": currentProductId,
-                    "quantity": succeedingDayQty,
-                    "date": moment(altdate).format("DD-MM-YYYY"),
-                    "product_subscription": 4,
-                    "product_days": "0"
-                },
-                {
-                    "product_id": currentProductId,
-                    "quantity": succeedingDayQty,
-                    "date": moment(altdate).format("DD-MM-YYYY"),
-                    "product_subscription": 4,
-                    "product_days": "0"
-                },
-                {
-                    "product_id": currentProductId,
-                    "quantity": succeedingDayQty,
-                    "date": moment(altdate).format("DD-MM-YYYY"),
-                    "product_subscription": 4,
-                    "product_days": "0"
-                }
-            ]
+        let today_date = new Date();
+        if (moment(altdate).format("DD-MM-YYYY") == moment(today_date).format("DD-MM-YYYY")) {
+            Toast.show({
+                type: 'info',
+                text2: "You can not choose today's date",
+                position: 'top',
+                topOffset: Platform.OS == 'ios' ? 55 : 20
+            });
+        } else {
+            const option = {
+                "orders": [
+                    {
+                        "product_id": currentProductId,
+                        "quantity": startingDayQty,
+                        "date": moment(altdate).format("DD-MM-YYYY"),
+                        "product_subscription": 4,
+                        "product_days": "0"
+                    },
+                    {
+                        "product_id": currentProductId,
+                        "quantity": succeedingDayQty,
+                        "date": moment(altdate).format("DD-MM-YYYY"),
+                        "product_subscription": 4,
+                        "product_days": "0"
+                    },
+                    {
+                        "product_id": currentProductId,
+                        "quantity": succeedingDayQty,
+                        "date": moment(altdate).format("DD-MM-YYYY"),
+                        "product_subscription": 4,
+                        "product_days": "0"
+                    },
+                    {
+                        "product_id": currentProductId,
+                        "quantity": succeedingDayQty,
+                        "date": moment(altdate).format("DD-MM-YYYY"),
+                        "product_subscription": 4,
+                        "product_days": "0"
+                    }
+                ]
+            }
+
+            AsyncStorage.getItem('userToken', (err, usertoken) => {
+                axios.post(`${API_URL}/public/api/user/placeorder`,
+                    option,
+                    {
+                        headers: {
+                            "Authorization": 'Bearer ' + usertoken,
+                            "Content-Type": 'application/json'
+                        },
+                    })
+                    .then(res => {
+                        console.log(res.data, 'place order')
+                        if (res.data.st == '200') {
+                            setModalVisible2(false)
+                            Toast.show({
+                                type: 'success',
+                                text2: res.data.orders.message,
+                                position: 'top',
+                                topOffset: Platform.OS == 'ios' ? 55 : 20
+                            });
+                        } else if (res.data.st == '400') {
+                            setModalVisible2(false)
+                            Toast.show({
+                                type: 'error',
+                                text2: res.data.orders[0].error,
+                                position: 'top',
+                                topOffset: Platform.OS == 'ios' ? 55 : 20
+                            });
+                        }
+
+                    })
+                    .catch(e => {
+                        console.log(`place order error ${e}`)
+                    });
+
+            });
         }
 
-        AsyncStorage.getItem('userToken', (err, usertoken) => {
-            axios.post(`${API_URL}/public/api/user/placeorder`,
-                option,
-                {
-                    headers: {
-                        "Authorization": 'Bearer ' + usertoken,
-                        "Content-Type": 'application/json'
-                    },
-                })
-                .then(res => {
-                    console.log(res.data, 'place order')
-                    if (res.data.st == '200') {
-                        setModalVisible2(false)
-                        Toast.show({
-                            type: 'success',
-                            text2: res.data.orders.message,
-                            position: 'top',
-                            topOffset: Platform.OS == 'ios' ? 55 : 20
-                        });
-                    } else if (res.data.st == '400') {
-                        setModalVisible2(false)
-                        Toast.show({
-                            type: 'error',
-                            text2: res.data.orders[0].error,
-                            position: 'top',
-                            topOffset: Platform.OS == 'ios' ? 55 : 20
-                        });
-                    }
-
-                })
-                .catch(e => {
-                    console.log(`place order error ${e}`)
-                });
-
-        });
 
     }
 
