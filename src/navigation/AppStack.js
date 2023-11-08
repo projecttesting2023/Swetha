@@ -147,7 +147,7 @@ const AuthStack = () => {
           ),
         }}
       />
-      {/* <Drawer.Screen
+      <Drawer.Screen
         name="Settings"
         component={SettingsScreen}
         options={{
@@ -155,7 +155,7 @@ const AuthStack = () => {
             <Ionicons name="settings-outline" size={22} color={color} />
           ),
         }}
-      /> */}
+      />
     </Drawer.Navigator>
   );
 };

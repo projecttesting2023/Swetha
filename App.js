@@ -10,12 +10,19 @@ import OfflineNotice from './src/utils/OfflineNotice'
 // import PushController from './src/utils/PushController';
 import messaging from '@react-native-firebase/messaging';
 // import PushNotificationIOS from '@react-native-community/push-notification-ios';
+import SplashScreen from 'react-native-splash-screen'
 
 function App() {
+  useEffect(() => {
+    setTimeout(() => {
+      SplashScreen.hide();
+    }, 5000);
+  }, [])
+
   const getFCMToken = async () => {
     try {
       // if (Platform.OS == 'android') {
-        await messaging().registerDeviceForRemoteMessages();
+      await messaging().registerDeviceForRemoteMessages();
       // }
       const token = await messaging().getToken();
       console.log(token, 'fcm token');
@@ -42,7 +49,7 @@ function App() {
         Alert.alert('A new FCM message arrived!', JSON.stringify(remoteMessage));
       });
       return unsubscribe;
-    } 
+    }
     // else {
     //   PushNotificationIOS.addEventListener('notification', (notification) => {
     //     // Handle the notification

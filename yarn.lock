@@ -7596,6 +7596,11 @@
   "resolved" "https://registry.npmjs.org/react-native-share/-/react-native-share-9.4.1.tgz"
   "version" "9.4.1"
 
+"react-native-splash-screen@^3.3.0":
+  "integrity" "sha512-rGjt6HkoSXxMqH4SQUJ1gnPQlPJV8+J47+4yhgTIan4bVvAwJhEeJH7wWt9hXSdH4+VfwTS0GTaflj1Tw83IhA=="
+  "resolved" "https://registry.npmjs.org/react-native-splash-screen/-/react-native-splash-screen-3.3.0.tgz"
+  "version" "3.3.0"
+
 "react-native-svg-transformer@^1.1.0":
   "integrity" "sha512-I/yIxryg7FH5DKAvKHL0VsOfARHPkXdgIl0AUhndWpQzUYgpFs+kJcCP7XoZR+gn0t36JE+q9f4x3p/arZFx5g=="
   "resolved" "https://registry.npmjs.org/react-native-svg-transformer/-/react-native-svg-transformer-1.1.0.tgz"

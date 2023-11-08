@@ -189,7 +189,7 @@ export default function HomeScreen({ navigation }) {
   }
   const changeToNextScreen = (id) => {
     console.log(id)
-    navigation.push('ProductDetailsScreen', { product_id:  id})
+    navigation.push('ProductDetailsScreen', { product_id: id })
   }
 
 
@@ -281,18 +281,7 @@ export default function HomeScreen({ navigation }) {
         <View style={{ marginTop: responsiveHeight(2) }}>
           <Text style={styles.categoryHeader}>Quick Actions</Text>
         </View>
-        <View style={styles.categoryContainer}>
-          <TouchableWithoutFeedback onPress={() => navigation.navigate('Wallet')}>
-            <View style={[styles.quickActionButton, { backgroundColor: '#95B70C' }]}>
-              <MaterialCommunityIcons name="wallet-outline" size={28} color="#FFF" />
-              <Text style={styles.quickActionText}>Recharge your wallet</Text>
-            </View>
-          </TouchableWithoutFeedback>
-          <View style={[styles.quickActionButton, { backgroundColor: '#15B3E4' }]}>
-            <MaterialCommunityIcons name="calendar-sync" size={28} color="#FFF" />
-            <Text style={styles.quickActionText}>Edit your subscription</Text>
-          </View>
-        </View>
+
         <View style={styles.categoryContainer}>
           <TouchableWithoutFeedback onPress={() => navigation.navigate('Order Statement')}>
             <View style={[styles.quickActionButton, { backgroundColor: '#79C59E' }]}>
@@ -306,6 +295,18 @@ export default function HomeScreen({ navigation }) {
               <Text style={styles.quickActionText}>Add your holiday</Text>
             </View>
           </TouchableWithoutFeedback>
+        </View>
+        <View style={styles.categoryContainer}>
+          <TouchableWithoutFeedback onPress={() => navigation.navigate('Wallet')}>
+            <View style={[styles.quickActionButton, { backgroundColor: '#95B70C' }]}>
+              <MaterialCommunityIcons name="wallet-outline" size={28} color="#FFF" />
+              <Text style={styles.quickActionText}>Recharge your wallet</Text>
+            </View>
+          </TouchableWithoutFeedback>
+          {/* <View style={[styles.quickActionButton, { backgroundColor: '#15B3E4' }]}>
+            <MaterialCommunityIcons name="calendar-sync" size={28} color="#FFF" />
+            <Text style={styles.quickActionText}>Edit your subscription</Text>
+          </View> */}
         </View>
         <View style={{ marginTop: responsiveHeight(2), paddingBottom: responsiveFontSize(3), alignSelf: 'center' }}>
           <Text style={styles.bottomText}>Click to watch <Text style={{ color: '#2D81E3' }}>YouTube</Text> Tutorial</Text>
@@ -519,6 +520,15 @@ const styles = StyleSheet.create({
   quickActionButton: {
     height: responsiveHeight(10),
     width: responsiveWidth(43),
+    borderRadius: 10,
+    flexDirection: 'row',
+    //justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 10
+  },
+  quickActionButton2: {
+    height: responsiveHeight(10),
+    width: responsiveWidth(90),
     borderRadius: 10,
     flexDirection: 'row',
     //justifyContent: 'space-between',
