@@ -11,6 +11,7 @@ import OfflineNotice from './src/utils/OfflineNotice'
 import messaging from '@react-native-firebase/messaging';
 // import PushNotificationIOS from '@react-native-community/push-notification-ios';
 import SplashScreen from 'react-native-splash-screen'
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 function App() {
   useEffect(() => {
@@ -25,6 +26,7 @@ function App() {
       await messaging().registerDeviceForRemoteMessages();
       // }
       const token = await messaging().getToken();
+      AsyncStorage.setItem('fcmToken', token)
       console.log(token, 'fcm token');
     } catch (e) {
       console.log(e);

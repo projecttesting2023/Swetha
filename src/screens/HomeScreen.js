@@ -52,8 +52,11 @@ export default function HomeScreen({ navigation }) {
   const [recomended, setRecomended] = useState([])
 
   useEffect(() => {
-    getCategory()
-    getBanner()
+    AsyncStorage.getItem('fcmToken', (err, fcmToken) => {
+      console.log(fcmToken,'fcmTokenfcmTokenfcmTokenfcmToken')
+      getCategory()
+      getBanner()
+    });
   }, [])
 
   useFocusEffect(
@@ -274,7 +277,7 @@ export default function HomeScreen({ navigation }) {
             showsHorizontalScrollIndicator={false}
             removeClippedSubviews={true}
             initialNumToRender={5}
-            //numColumns={2}
+          //numColumns={2}
           />
         </View>
 

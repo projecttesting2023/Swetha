@@ -17,6 +17,7 @@ import RNFS from 'react-native-fs';
 import Share from 'react-native-share';
 import RNFetchBlob from 'rn-fetch-blob';
 import Toast from 'react-native-toast-message';
+import Loader from '../utils/Loader';
 
 
 const OrderStatementScreen = ({ navigation }) => {
@@ -24,7 +25,7 @@ const OrderStatementScreen = ({ navigation }) => {
     const [endDay, setEndDay] = useState(null);
     const [markedDates, setMarkedDates] = useState({});
     const [statementData, getStatementData] = useState([])
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
     const [pdfLink, setPdfLink] = useState('')
 
     const handleDayPress = (day) => {
@@ -73,8 +74,8 @@ const OrderStatementScreen = ({ navigation }) => {
                 useDownloadManager: true,
                 notification: true,
                 mediaScannable: true,
-                title: `orderstatement.pdf`,
-                path: `${dirs.DownloadDir}/orderstatement.pdf`,
+                title: `${moment(startDay).format("DD-MM-YYYY")}-${moment(endDay).format("DD-MM-YYYY")}-statement.pdf`,
+                path: `${dirs.DownloadDir}/${moment(startDay).format("DD-MM-YYYY")}-${moment(endDay).format("DD-MM-YYYY")}-statement.pdf`,
             },
         })
             .fetch('GET', url, {})
@@ -94,46 +95,58 @@ const OrderStatementScreen = ({ navigation }) => {
     }
 
     const downloadPDFByDateRange = async () => {
+        setIsLoading(true);
         console.log(startDay, 'startDay')
         console.log(endDay, 'endDay')
-        const option = {
-            "start_date": moment(startDay).format("DD-MM-YYYY"),
-            "end_date": moment(endDay).format("DD-MM-YYYY")
+        if (!startDay || !endDay) {
+            setIsLoading(false);
+            Toast.show({
+                type: 'error',
+                text2: "Please choose start and end date",
+                position: 'top',
+                topOffset: Platform.OS == 'ios' ? 55 : 20
+            });
+        } else {
+            const option = {
+                "start_date": moment(startDay).format("DD-MM-YYYY"),
+                "end_date": moment(endDay).format("DD-MM-YYYY")
+            }
+
+            AsyncStorage.getItem('userToken', (err, usertoken) => {
+                axios.post(`${API_URL}/public/api/user/genpdf`,
+                    option,
+                    {
+                        headers: {
+                            "Authorization": 'Bearer ' + usertoken,
+                            "Content-Type": 'application/json'
+                        },
+                    })
+                    .then(res => {
+                        //console.log(res.data.orders_date, 'order statement')
+                        //getStatementData(res.data.orders_date)
+                        setIsLoading(false);
+                        if (res.data.st == '200') {
+                            setPdfLink(res.data.pdf_url)
+                            actualDownload(res.data.pdf_url)
+                        } else if (res.data.st == '400') {
+                            Alert.alert('Oops..', res.data.massage, [
+                                {
+                                    text: 'Cancel',
+                                    onPress: () => console.log('Cancel Pressed'),
+                                    style: 'cancel',
+                                },
+                                { text: 'OK', onPress: () => console.log('OK Pressed') },
+                            ]);
+                        }
+
+                    })
+                    .catch(e => {
+                        console.log(`Product Details error ${e}`)
+                    });
+
+            });
         }
 
-        AsyncStorage.getItem('userToken', (err, usertoken) => {
-            axios.post(`${API_URL}/public/api/user/genpdf`,
-                option,
-                {
-                    headers: {
-                        "Authorization": 'Bearer ' + usertoken,
-                        "Content-Type": 'application/json'
-                    },
-                })
-                .then(res => {
-                    //console.log(res.data.orders_date, 'order statement')
-                    //getStatementData(res.data.orders_date)
-                    setIsLoading(false);
-                    if (res.data.st == '200') {
-                        setPdfLink(res.data.pdf_url)
-                        actualDownload(res.data.pdf_url)
-                    } else if (res.data.st == '400') {
-                        Alert.alert('Oops..', res.data.massage, [
-                            {
-                                text: 'Cancel',
-                                onPress: () => console.log('Cancel Pressed'),
-                                style: 'cancel',
-                            },
-                            { text: 'OK', onPress: () => console.log('OK Pressed') },
-                        ]);
-                    }
-
-                })
-                .catch(e => {
-                    console.log(`Product Details error ${e}`)
-                });
-
-        });
 
     }
     // const convertHTMLtoPDF = async () => {
@@ -199,78 +212,94 @@ const OrderStatementScreen = ({ navigation }) => {
     //         });
 
     //     // Display a success message
-       
+
     // }
 
     const sharePDF = async () => {
         const pdfUrl = pdfLink; // Replace with your PDF link
-        const filePath = `${RNFetchBlob.fs.dirs.DocumentDir}/orderstatement.pdf`; // Define the file path where the PDF will be saved
-      
+        const filePath = `${RNFetchBlob.fs.dirs.DocumentDir}/${moment(startDay).format("DD-MM-YYYY")}-${moment(endDay).format("DD-MM-YYYY")}-statement.pdf`; // Define the file path where the PDF will be saved
+
         try {
-          const response = await RNFetchBlob.config({
-            fileCache: true,
-            path: filePath,
-          }).fetch('GET', pdfUrl);
-      
-          if (response.info().status === 200) {
-            const options = {
-              type: 'application/pdf',
-              url: `file://${filePath}`,
-            };
-      
-            await Share.open(options);
-          } else {
-            console.log('Failed to download PDF');
-          }
+            const response = await RNFetchBlob.config({
+                fileCache: true,
+                path: filePath,
+            }).fetch('GET', pdfUrl);
+
+            if (response.info().status === 200) {
+                const options = {
+                    type: 'application/pdf',
+                    url: `file://${filePath}`,
+                };
+
+                await Share.open(options);
+            } else {
+                console.log('Failed to download PDF');
+            }
         } catch (error) {
-          console.error(error);
+            console.error(error);
         }
-      };
+    };
 
     const sharePDFByDateRange = () => {
+        setIsLoading(true);
         console.log(startDay, 'startDay')
         console.log(endDay, 'endDay')
-        const option = {
-            "start_date": moment(startDay).format("DD-MM-YYYY"),
-            "end_date": moment(endDay).format("DD-MM-YYYY")
+        if (!startDay || !endDay) {
+            setIsLoading(false);
+            Toast.show({
+                type: 'error',
+                text2: "Please choose start and end date",
+                position: 'top',
+                topOffset: Platform.OS == 'ios' ? 55 : 20
+            });
+        } else {
+            const option = {
+                "start_date": moment(startDay).format("DD-MM-YYYY"),
+                "end_date": moment(endDay).format("DD-MM-YYYY")
+            }
+
+            AsyncStorage.getItem('userToken', (err, usertoken) => {
+                axios.post(`${API_URL}/public/api/user/genpdf`,
+                    option,
+                    {
+                        headers: {
+                            "Authorization": 'Bearer ' + usertoken,
+                            "Content-Type": 'application/json'
+                        },
+                    })
+                    .then(res => {
+                        //console.log(res.data.orders_date, 'order statement')
+                        //getStatementData(res.data.orders_date)
+                        setIsLoading(false);
+                        if (res.data.st == '200') {
+                            setPdfLink(res.data.pdf_url)
+                            sharePDF()
+
+                        } else if (res.data.st == '400') {
+                            Alert.alert('Oops..', res.data.massage, [
+                                {
+                                    text: 'Cancel',
+                                    onPress: () => console.log('Cancel Pressed'),
+                                    style: 'cancel',
+                                },
+                                { text: 'OK', onPress: () => console.log('OK Pressed') },
+                            ]);
+                        }
+
+                    })
+                    .catch(e => {
+                        console.log(`Product Details error ${e}`)
+                    });
+
+            });
         }
 
-        AsyncStorage.getItem('userToken', (err, usertoken) => {
-            axios.post(`${API_URL}/public/api/user/genpdf`,
-                option,
-                {
-                    headers: {
-                        "Authorization": 'Bearer ' + usertoken,
-                        "Content-Type": 'application/json'
-                    },
-                })
-                .then(res => {
-                    //console.log(res.data.orders_date, 'order statement')
-                    //getStatementData(res.data.orders_date)
-                    setIsLoading(false);
-                    if (res.data.st == '200') {
-                        setPdfLink(res.data.pdf_url)
-                        sharePDF()
-
-                    } else if (res.data.st == '400') {
-                        Alert.alert('Oops..', res.data.massage, [
-                            {
-                                text: 'Cancel',
-                                onPress: () => console.log('Cancel Pressed'),
-                                style: 'cancel',
-                            },
-                            { text: 'OK', onPress: () => console.log('OK Pressed') },
-                        ]);
-                    }
-
-                })
-                .catch(e => {
-                    console.log(`Product Details error ${e}`)
-                });
-
-        });
     }
-
+    if (isLoading) {
+        return (
+            <Loader />
+        )
+    }
     return (
         <SafeAreaView style={styles.Container}>
             <CustomHeader commingFrom={'Profile'} onPress={() => navigation.goBack()} title={'Order Statement'} />
