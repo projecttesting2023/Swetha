@@ -13,8 +13,8 @@ import {
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Feather from 'react-native-vector-icons/Feather';
-
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { API_URL } from '@env'
 import CustomSwitch from '../components/CustomSwitch';
 import ListItem from '../components/ListItem';
 import { AuthContext } from '../context/AuthContext';
@@ -40,7 +40,9 @@ export default function HelpScreen({ navigation }) {
     const { data: products, status } = useSelector(state => state.products)
     const { userInfo } = useContext(AuthContext)
 
-    const [selectedTab, setSelectedTab] = useState(1);
+    const [getData, setData] = useState([])
+    const [getPhoneNo, setPhoneNo] = useState()
+    const [isLoading, setIsLoading] = useState(true)
 
     const fetchProducts = () => {
         dispatch(getProducts())
@@ -48,10 +50,38 @@ export default function HelpScreen({ navigation }) {
     }
 
     useEffect(() => {
-        //fetchProducts();
+        fetchData();
     }, [])
 
-    if (status == 'loading') {
+    const fetchData = () => {
+        AsyncStorage.getItem('userToken', (err, usertoken) => {
+            axios.get(`${API_URL}/public/api/user/adminphn`, {
+                headers: {
+                    "Authorization": 'Bearer ' + usertoken,
+                    "Content-Type": 'application/json'
+                },
+            })
+                .then(res => {
+                    console.log(res.data.adminphn[0].phn, 'fffff')
+                    setData(res.data.adminphn)
+                    const response = res.data.adminphn[0].phn
+                    const phoneNumberRegex = /\d{10}/g;
+                    // Extract phone numbers from the response
+                    const phoneNumbers = response.match(phoneNumberRegex);
+                    setPhoneNo(phoneNumbers)
+                    // Log the results
+                    console.log(phoneNumbers);
+                    setIsLoading(false);
+                })
+                .catch(e => {
+                    console.log(`Category error ${e}`)
+                });
+
+        });
+
+    }
+
+    if (isLoading) {
         return (
             <Loader />
         )
@@ -66,15 +96,15 @@ export default function HelpScreen({ navigation }) {
                 <Text style={{ color: '#444', fontFamily: 'Poppins-Regular', fontSize: responsiveFontSize(3), fontWeight: '500', marginBottom: responsiveHeight(2) }}>We are happy to serve you?</Text>
                 <View style={styles.bannerView}>
                     <Text style={styles.bannerText1}>Call us</Text>
-                    <Text style={styles.bannerText2}>800 800 5221</Text>
+                    <Text style={styles.bannerText2}>{getPhoneNo[0]}</Text>
                     <Text style={styles.bannerText1}>(Or)</Text>
                     <Text style={styles.bannerText1}>Please drop a message on WhatsApp at</Text>
-                    <Text style={styles.bannerText2}>800 800 5221</Text>
+                    <Text style={styles.bannerText2}>{getPhoneNo[1]}</Text>
                     <View style={styles.line} />
                     <Text style={styles.bannerText1}>Swetha Dairy Farm</Text>
                     <Text style={styles.bannerText1}>We care!</Text>
                 </View>
-                
+
             </ScrollView>
         </SafeAreaView >
     );

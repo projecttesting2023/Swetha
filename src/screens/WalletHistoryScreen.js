@@ -63,18 +63,30 @@ const WalletHistoryScreen = ({ navigation }) => {
                             <Text style={{ color: '#444', fontFamily: 'Poppins-Regular', fontSize: responsiveFontSize(2), fontWeight: '700', textAlign: 'right' }}>+{item.item.amount}</Text>
                         </View>
                     </View>
-                    :
-                    <View style={styles.singleValue}>
-                        <Feather name="arrow-down-left" size={22} color="#F25C5C" />
-                        <View style={{ flexDirection: 'column', marginLeft: 20, width: responsiveWidth(50) }}>
-                            <Text style={{ color: '#444', fontFamily: 'Poppins-Regular', fontSize: responsiveFontSize(2), fontWeight: '700' }}>Debit</Text>
-                            <Text style={{ color: '#444', fontFamily: 'Poppins-Regular', fontSize: responsiveFontSize(1.7), }}>{item.item.trasanction_id}</Text>
-                            <Text style={{ color: '#444', fontFamily: 'Poppins-Regular', fontSize: responsiveFontSize(2), }}>{moment(item.item.created_at).format("DD-MM-YYYY")}</Text>
+                    : item.item.status == 2 ?
+                        <View style={styles.singleValue}>
+                            <Feather name="arrow-down-left" size={22} color="#F25C5C" />
+                            <View style={{ flexDirection: 'column', marginLeft: 20, width: responsiveWidth(50) }}>
+                                <Text style={{ color: '#444', fontFamily: 'Poppins-Regular', fontSize: responsiveFontSize(2), fontWeight: '700' }}>Debit</Text>
+                                <Text style={{ color: '#444', fontFamily: 'Poppins-Regular', fontSize: responsiveFontSize(1.7), }}>{item.item.trasanction_id}</Text>
+                                <Text style={{ color: '#444', fontFamily: 'Poppins-Regular', fontSize: responsiveFontSize(2), }}>{moment(item.item.created_at).format("DD-MM-YYYY")}</Text>
+                            </View>
+                            <View style={{ width: responsiveWidth(20), marginLeft: 10 }}>
+                                <Text style={{ color: '#444', fontFamily: 'Poppins-Regular', fontSize: responsiveFontSize(2), fontWeight: '700', textAlign: 'right' }}>-{item.item.amount}</Text>
+                            </View>
                         </View>
-                        <View style={{ width: responsiveWidth(20), marginLeft: 10 }}>
-                            <Text style={{ color: '#444', fontFamily: 'Poppins-Regular', fontSize: responsiveFontSize(2), fontWeight: '700', textAlign: 'right' }}>-{item.item.amount}</Text>
+                        :
+                        <View style={styles.singleValue}>
+                            <Feather name="arrow-down-left" size={22} color="#F25C5C" />
+                            <View style={{ flexDirection: 'column', marginLeft: 20, width: responsiveWidth(50) }}>
+                                <Text style={{ color: '#444', fontFamily: 'Poppins-Regular', fontSize: responsiveFontSize(2), fontWeight: '700' }}>Debit</Text>
+                                <Text style={{ color: '#444', fontFamily: 'Poppins-Regular', fontSize: responsiveFontSize(1.7), }}>{item.item.trasanction_id}</Text>
+                                <Text style={{ color: '#444', fontFamily: 'Poppins-Regular', fontSize: responsiveFontSize(2), }}>{moment(item.item.created_at).format("DD-MM-YYYY")}</Text>
+                            </View>
+                            <View style={{ width: responsiveWidth(20), marginLeft: 10 }}>
+                                <Text style={{ color: '#444', fontFamily: 'Poppins-Regular', fontSize: responsiveFontSize(2), fontWeight: '700', textAlign: 'right' }}>-{item.item.amount}</Text>
+                            </View>
                         </View>
-                    </View>
                 }
             </>
         )
@@ -84,18 +96,18 @@ const WalletHistoryScreen = ({ navigation }) => {
         <SafeAreaView style={styles.Container}>
             <CustomHeader commingFrom={'WalletHistory'} onPress={() => navigation.goBack()} title={'Wallet History'} />
             <ScrollView style={styles.wrapper}>
-
-                <FlatList
-                    data={walletHistory}
-                    renderItem={renderHistory}
-                    keyExtractor={(item, index) => index}
-                    horizontal={false}
-                    showsVerticalScrollIndicator={false}
-                    removeClippedSubviews={true}
-                    initialNumToRender={5}
-                    numColumns={1}
-                />
-
+                <View style={{marginBottom:responsiveHeight(10)}}>
+                    <FlatList
+                        data={walletHistory}
+                        renderItem={renderHistory}
+                        keyExtractor={(item, index) => index}
+                        horizontal={false}
+                        showsVerticalScrollIndicator={false}
+                        removeClippedSubviews={true}
+                        initialNumToRender={5}
+                        numColumns={1}
+                    />
+                </View>
             </ScrollView>
         </SafeAreaView>
     )

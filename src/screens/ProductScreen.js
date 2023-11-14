@@ -24,6 +24,7 @@ import { discountImg, milkImg, } from '../utils/Images';
 import Loader from '../utils/Loader';
 import { API_URL } from '@env'
 import { responsiveFontSize, responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions';
+import { useFocusEffect, StackActions } from '@react-navigation/native';
 import CustomHeader from '../components/CustomHeader';
 import DatePicker from 'react-native-date-picker'
 import CustomButton from '../components/CustomButton';
@@ -87,6 +88,13 @@ export default function ProductScreen({ navigation, route }) {
 
     }, [])
 
+    useFocusEffect(
+        React.useCallback(() => {
+          setSelectedTab(0)
+          fetchCategory();
+        }, [])
+      )
+
     // useEffect(() => {
     //     //console.log(status,'product status')
     //     if (status == 'success') {
@@ -148,8 +156,8 @@ export default function ProductScreen({ navigation, route }) {
                     },
                 })
                 .then(res => {
-                    console.log(res.data.product, 'category wise product')
-                    setProductsData(res.data.product)
+                    console.log(res.data.product.data, 'category wise product')
+                    setProductsData(res.data.product.data)
                     setIsLoading(false);
                 })
                 .catch(e => {
@@ -240,6 +248,7 @@ export default function ProductScreen({ navigation, route }) {
     }
 
     const placedByOnceOrder = () => {
+        setIsLoading(true)
         let current_date = new Date();
         if (moment(date).format("DD-MM-YYYY") == moment(current_date).format("DD-MM-YYYY")) {
             Toast.show({
@@ -274,6 +283,7 @@ export default function ProductScreen({ navigation, route }) {
                         console.log(res.data, 'place order')
                         if (res.data.st == '200') {
                             setModalVisible(false)
+                            setIsLoading(false)
                             Toast.show({
                                 type: 'success',
                                 text2: res.data.orders.message,
@@ -282,6 +292,7 @@ export default function ProductScreen({ navigation, route }) {
                             });
                         } else if (res.data.st == '400') {
                             setModalVisible(false)
+                            setIsLoading(false)
                             Toast.show({
                                 type: 'error',
                                 text2: res.data.orders[0].error,
@@ -310,6 +321,7 @@ export default function ProductScreen({ navigation, route }) {
         // console.log(fridayQty, 'fridayQty')
         // console.log(satardayQty, 'satardayQty')
         // console.log(moment(date2).format("DD-MM-YYYY"), 'date')
+        setIsLoading(true)
         let current_date = new Date();
         if (moment(date2).format("DD-MM-YYYY") == moment(current_date).format("DD-MM-YYYY")) {
             Toast.show({
@@ -401,6 +413,7 @@ export default function ProductScreen({ navigation, route }) {
                         console.log(res.data, 'place order')
                         if (res.data.st == '200') {
                             setModalVisible2(false)
+                            setIsLoading(false)
                             Toast.show({
                                 type: 'success',
                                 text2: res.data.orders.message,
@@ -409,6 +422,7 @@ export default function ProductScreen({ navigation, route }) {
                             });
                         } else if (res.data.st == '400') {
                             setModalVisible2(false)
+                            setIsLoading(false)
                             Toast.show({
                                 type: 'error',
                                 text2: res.data.orders[0].error,
@@ -442,7 +456,10 @@ export default function ProductScreen({ navigation, route }) {
                         <View style={{ alignSelf: 'flex-start', marginLeft: 10 }}>
                             <Text style={styles.productText} numberOfLines={1}>{item.name}</Text>
                             <Text style={styles.productText2}>{item.volume}</Text>
-                            <Text style={styles.productText3}>₹{item.ammount}</Text>
+                            <View style={{ flexDirection: 'row', }}>
+                            <Text style={styles.productText3}>₹{item.discount_ammount}</Text>
+                            <Text style={styles.productText4}>₹{item.ammount}</Text>
+                        </View>
                         </View>
                         <View style={styles.productButtonView}>
                             <TouchableWithoutFeedback onPress={() => buyOnceModalOpen(item.id)}>
@@ -498,6 +515,7 @@ export default function ProductScreen({ navigation, route }) {
                         numColumns={1}
                     />
                 </View>
+                <View style={{marginBottom:responsiveHeight(20)}}>
                 <FlatList
                     data={productsData}
                     renderItem={renderProducts}
@@ -508,6 +526,7 @@ export default function ProductScreen({ navigation, route }) {
                     initialNumToRender={5}
                     numColumns={1}
                 />
+                </View>
             </View>
             {/*------------------ Buy Once modal start-------------*/}
             {modalVisible ?
@@ -824,7 +843,16 @@ const styles = StyleSheet.create({
         fontFamily: 'Poppins-Regular',
         fontSize: responsiveFontSize(2),
         color: '#444',
-        marginBottom: 5
+        marginBottom: 5,
+        marginRight:10
+    },
+    productText4: {
+        fontFamily: 'Poppins-Regular',
+        fontSize: responsiveFontSize(2.2),
+        color: '#F25C5C',
+        marginBottom: 7,
+        textDecorationLine: 'line-through',
+        textDecorationStyle: 'solid'
     },
     productButtonView: {
         flexDirection: 'row',

@@ -126,8 +126,8 @@ export default function HomeScreen({ navigation }) {
           },
         })
         .then(res => {
-          //console.log(res.data.product, 'category wise product')
-          setRecomended(res.data.product)
+          //console.log(res.data.product.data, 'category wise product')
+          setRecomended(res.data.product.data)
           setIsLoading(false);
         })
         .catch(e => {
@@ -270,11 +270,11 @@ export default function HomeScreen({ navigation }) {
             data={recomended}
             renderItem={renderRecomended}
             keyExtractor={(item, index) => index}
-            horizontal={false}
-            showsVerticalScrollIndicator={false}
+            horizontal={true}
+            showsHorizontalScrollIndicator={false}
             removeClippedSubviews={true}
             initialNumToRender={5}
-            numColumns={2}
+            //numColumns={2}
           />
         </View>
 

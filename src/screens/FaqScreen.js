@@ -13,12 +13,12 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import * as Animatable from 'react-native-animatable';
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import CustomSwitch from '../components/CustomSwitch';
 import ListItem from '../components/ListItem';
 import { AuthContext } from '../context/AuthContext';
 import { getProducts } from '../store/productSlice'
-
+import { API_URL } from '@env'
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 import { add } from '../store/cartSlice';
@@ -43,6 +43,8 @@ export default function FaqScreen({ navigation }) {
 
     const [activeSections, setActiveSections] = useState([]);
     const [collapsed, setCollapsed] = useState(true);
+    const [getFaq, setFaq] = useState([])
+    const [isLoading, setIsLoading] = useState(true)
 
     const toggleExpanded = () => {
         setCollapsed(!collapsed)
@@ -60,7 +62,7 @@ export default function FaqScreen({ navigation }) {
                 transition="backgroundColor"
             >
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 10, paddingVertical: 10 }}>
-                    <Text style={styles.headerText}>{section.title}</Text>
+                    <Text style={styles.headerText}>{section.qustion}</Text>
                     {isActive ?
                         <Image source={accordianminusImg} style={styles.iconimg} />
                         :
@@ -81,34 +83,48 @@ export default function FaqScreen({ navigation }) {
 
                 <View style={{ paddingHorizontal: 10, paddingVertical: 10, backgroundColor: '#E6F6FB' }}>
                     <Animatable.Text animation={isActive ? 'zoomIn' : undefined}>
-                        {section.body}Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make.
+                    {section.ans.replace(/<\/?[^>]+(>|$)/g, "")}
                     </Animatable.Text>
-                    <Animatable.Image
+                    {/* <Animatable.Image
                         animation={isActive ? 'zoomIn' : undefined}
                         style={{height:responsiveHeight(10),width:responsiveWidth(85),resizeMode:'cover',marginTop:20}}
                         source={{uri:section.imgUrl}}
-                    />
+                    /> */}
                 </View>
 
             </Animatable.View>
         );
     }
 
-    const fetchProducts = () => {
-        dispatch(getProducts())
+    const fetchFaq = () => {
+        AsyncStorage.getItem('userToken', (err, usertoken) => {
+            axios.get(`${API_URL}/public/api/user/faq`, {
+                headers: {
+                    "Authorization": 'Bearer ' + usertoken,
+                    "Content-Type": 'application/json'
+                },
+            })
+                .then(res => {
+                    setFaq(res.data.faq)
+                    setIsLoading(false);
+                })
+                .catch(e => {
+                    console.log(`Category error ${e}`)
+                });
+
+        });
 
     }
 
     useEffect(() => {
-        fetchProducts();
+        fetchFaq();
     }, [])
 
-    if (status == 'loading') {
+    if (isLoading) {
         return (
             <Loader />
         )
     }
-
 
 
     return (
@@ -125,7 +141,7 @@ export default function FaqScreen({ navigation }) {
                 </Collapsible>
                 <Accordion
                     activeSections={activeSections}
-                    sections={data}
+                    sections={getFaq}
                     touchableComponent={TouchableOpacity}
                     renderHeader={renderHeader}
                     renderContent={renderContent}

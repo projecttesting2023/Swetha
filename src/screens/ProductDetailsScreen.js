@@ -206,6 +206,7 @@ export default function ProductDetailsScreen({ navigation, route }) {
         // console.log(fridayQty, 'fridayQty')
         // console.log(satardayQty, 'satardayQty')
         // console.log(moment(date2).format("DD-MM-YYYY"), 'date')
+        setIsLoading(true)
         let today_date = new Date();
         if (moment(repeatingdate).format("DD-MM-YYYY") == moment(today_date).format("DD-MM-YYYY")) {
             Toast.show({
@@ -297,6 +298,7 @@ export default function ProductDetailsScreen({ navigation, route }) {
                         console.log(res.data, 'place order')
                         if (res.data.st == '200') {
                             setModalVisible(false)
+                            setIsLoading(false)
                             Toast.show({
                                 type: 'success',
                                 text2: res.data.orders.message,
@@ -305,6 +307,7 @@ export default function ProductDetailsScreen({ navigation, route }) {
                             });
                         } else if (res.data.st == '400') {
                             setModalVisible(false)
+                            setIsLoading(false)
                             Toast.show({
                                 type: 'error',
                                 text2: res.data.orders[0].error,
@@ -328,6 +331,7 @@ export default function ProductDetailsScreen({ navigation, route }) {
         console.log(startingDayQty, 'startingDayQty')
         console.log(succeedingDayQty, 'succeedingDayQty')
         console.log(moment(altdate).format("DD-MM-YYYY"), 'altdate')
+        setIsLoading(true)
         let today_date = new Date();
         if (moment(altdate).format("DD-MM-YYYY") == moment(today_date).format("DD-MM-YYYY")) {
             Toast.show({
@@ -370,6 +374,8 @@ export default function ProductDetailsScreen({ navigation, route }) {
                 ]
             }
 
+            console.log(option)
+
             AsyncStorage.getItem('userToken', (err, usertoken) => {
                 axios.post(`${API_URL}/public/api/user/placeorder`,
                     option,
@@ -383,6 +389,7 @@ export default function ProductDetailsScreen({ navigation, route }) {
                         console.log(res.data, 'place order')
                         if (res.data.st == '200') {
                             setModalVisible2(false)
+                            setIsLoading(false)
                             Toast.show({
                                 type: 'success',
                                 text2: res.data.orders.message,
@@ -391,6 +398,7 @@ export default function ProductDetailsScreen({ navigation, route }) {
                             });
                         } else if (res.data.st == '400') {
                             setModalVisible2(false)
+                            setIsLoading(false)
                             Toast.show({
                                 type: 'error',
                                 text2: res.data.orders[0].error,
@@ -415,7 +423,7 @@ export default function ProductDetailsScreen({ navigation, route }) {
 
     return (
         <SafeAreaView style={styles.Container}>
-            <CustomHeader commingFrom={'product'} title={'Product Details'} onPress={() => navigation.navigate('ProductScreen')} onPressProfile={() => navigation.navigate('Profile')} />
+            <CustomHeader commingFrom={'product'} title={'Product Details'} onPress={() => navigation.goBack()} onPressProfile={() => navigation.navigate('Profile')} />
             <ScrollView style={styles.wrapper}>
                 <View style={{ paddingBottom: responsiveHeight(3) }}>
                     <View style={styles.imageView}>

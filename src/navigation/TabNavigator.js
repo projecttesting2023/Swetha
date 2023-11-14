@@ -21,6 +21,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import Feather from 'react-native-vector-icons/Feather';
 import { responsiveHeight } from 'react-native-responsive-dimensions';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import OfferDetailsScreen from '../screens/OfferDetailsScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -53,6 +54,11 @@ const HomeStack = () => {
         component={ProductDetailsScreen}
         options={{ headerShown: false }}
       />
+       <Stack.Screen
+        name="OfferDetailsScreen"
+        component={OfferDetailsScreen}
+        options={{ headerShown: false }}
+      />
     </Stack.Navigator>
   );
 };
@@ -65,11 +71,7 @@ const ProductStack = () => {
         component={ProductScreen}
         options={{ headerShown: false }}
       />
-      {/* <Stack.Screen
-        name="ProductDetailsScreen"
-        component={ProductDetailsScreen}
-        options={{ headerShown: false }}
-      /> */}
+     
     </Stack.Navigator>
   )
 
